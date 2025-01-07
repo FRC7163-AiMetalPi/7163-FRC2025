@@ -257,28 +257,20 @@ public class DriveConstants {
       SWERVE_MODULE_BL.location,
       SWERVE_MODULE_BR.location);
 
-  public static class SwerveModuleDetails {
-    /** CAN ID for the module's Driving Motor */
-    public final int driveCANID;
-    /** CAN ID for the module's Steering Motor */
-    public final int steerCANID;
-    /**
-     * Angular offset of the module around the robot's center, FL module is at 0,
-     * top down CW positive.
-     */
-    public final double angularOffsetRadians;
-    /**
-     * Location of module relative to robot center, top down, right and front pos.
-     * Mainly for sim purposes.
-     */
-    public final Translation2d location;
-
-    protected SwerveModuleDetails(int driveCANID, int steerCANID, double angularOffsetRadians,
-        Translation2d location) {
-      this.driveCANID = driveCANID;
-      this.steerCANID = steerCANID;
-      this.angularOffsetRadians = angularOffsetRadians;
-      this.location = location;
-    }
+  public static record SwerveModuleDetails(
+      /** CAN ID for the module's Driving Motor */
+      int driveCANID,
+      /** CAN ID for the module's Steering Motor */
+      int steerCANID,
+      /**
+       * Angular offset of the module around the robot's center, FL module is at 0,
+       * top down CW positive.
+       */
+      double angularOffsetRadians,
+      /**
+       * Location of module relative to robot center, top down, right and front pos.
+       * Mainly for sim purposes.
+       */
+      Translation2d location) {
   }
 }

@@ -63,10 +63,10 @@ public class SwerveModule implements Sendable {
   public SwerveModule(SwerveModuleDetails moduleDetails) {
     // moduleId = settings.CAN_ID_DRIVE;
     this.details = moduleDetails;
-    this.angularOffset = Rotation2d.fromRadians(moduleDetails.angularOffsetRadians);
+    this.angularOffset = Rotation2d.fromRadians(moduleDetails.angularOffsetRadians());
 
     // --------------DRIVE MOTOR--------------
-    driveMotor = new TalonFX(moduleDetails.driveCANID);
+    driveMotor = new TalonFX(moduleDetails.driveCANID());
     final var driveMotorConfig = new TalonFXConfiguration();
     driveMotorConfig.MotorOutput.Inverted = DriveConstants.DRIVE_MOTOR_INVERTED;
     driveMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -84,7 +84,7 @@ public class SwerveModule implements Sendable {
     driveController = new VelocityVoltage(0)/* .withFeedForward(DriveConstants.DRIVING_FF) */.withSlot(0);
 
     // --------------STEER MOTOR--------------
-    turnMotor = new SparkMax(moduleDetails.steerCANID, MotorType.kBrushless);
+    turnMotor = new SparkMax(moduleDetails.steerCANID(), MotorType.kBrushless);
     turnController = turnMotor.getClosedLoopController();
     final var turnMotorConfig = new SparkMaxConfig();
 
@@ -184,7 +184,7 @@ public class SwerveModule implements Sendable {
         : new SwerveModuleState(-desiredState.speedMetersPerSecond, desiredState.angle);
     state = moduleRel ? state
         : new SwerveModuleState(state.speedMetersPerSecond,
-            state.angle.plus(Rotation2d.fromRadians(details.angularOffsetRadians)));
+            state.angle.plus(Rotation2d.fromRadians(details.angularOffsetRadians())));
     return state;
   }
 
