@@ -11,7 +11,7 @@ import frc.robot.subsystems.DriveSub;
  * Subsystems - Use this class to initialize and access all subsystems globally.
  */
 public class Subsystems {
-  public static final DriveSub swerveDrive = new DriveSub();
+  public static final DriveSub drive = new DriveSub();
   public static final List<LEDZone> ledZones = new ArrayList<LEDZone>(Arrays.asList(
       new LEDZone(new short[] { 60, 92 }, new short[] { 69, 101 }, 0),
       new LEDZone(70, 91, 1),

@@ -23,14 +23,14 @@ public class TeleopProvider {
 
   private TeleopProvider() {
     // disabled
-    disableCommand.addRequirements(Subsystems.swerveDrive);
+    disableCommand.addRequirements(Subsystems.drive);
     chooser.setDefaultOption("Disable Teleop", disableCommand);
 
     chooser.addOption("Swerve Teleop", teleopSwerve);
     chooser.addOption("Swerve Demo Teleop", teleopDemoSwerve);
 
-    chooser.onChange(Subsystems.swerveDrive::setDefaultCommand);
-    Subsystems.swerveDrive.setDefaultCommand(chooser.getSelected()); // set default on startup
+    chooser.onChange(Subsystems.drive::setDefaultCommand);
+    Subsystems.drive.setDefaultCommand(chooser.getSelected()); // set default on startup
 
     SmartDashboard.putData("Teleop Chooser", chooser);
   }
