@@ -9,7 +9,8 @@ package frc.robot.utils;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -22,8 +23,6 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 
-import java.util.Map;
-
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -32,10 +31,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import frc.robot.Robot;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.DriveConstants.S_MODULE_DETAILS;
-import frc.robot.shufflecontrol.ShuffleTabController;
-import frc.robot.utils.logger.Logger;
 
-public class SwerveModule {
+public class SwerveModule implements Sendable {
   private final TalonFX driveMotor;
   private final SparkMax turnMotor;
 
@@ -45,7 +42,7 @@ public class SwerveModule {
   private final SparkClosedLoopController turnController;
 
   // private final int moduleId;
-  private final S_MODULE_DETAILS module_details;
+  private final S_MODULE_DETAILS details;
 
   private int lastLimit = 0;
 
@@ -53,9 +50,6 @@ public class SwerveModule {
 
   private Rotation2d angularOffset = new Rotation2d(0);
   private SwerveModuleState desiredState = new SwerveModuleState(0.0, new Rotation2d());
-
-  private Logger logger;
-  private ShuffleTabController shuffleTab;
 
   /**
    * Constructs a new SwerveModule for a MAX Swerve Module housing a Falcon
@@ -66,48 +60,31 @@ public class SwerveModule {
    * @param angularOffset Angular offset of the module in radians
    * @param shuffleTab    The shuffleboard tab to add widgets to
    */
-  public SwerveModule(S_MODULE_DETAILS module_details, ShuffleTabController shuffleTab) {
+  public SwerveModule(S_MODULE_DETAILS moduleDetails) {
     // moduleId = settings.CAN_ID_DRIVE;
-    this.module_details = module_details;
-    this.angularOffset = Rotation2d.fromRadians(module_details.ANGULAR_OFFSET);
-
-    // --------------INIT--------------
-    // create loggger
-    logger = new Logger("swerve-" + module_details.CAN_ID_DRIVE,
-        new String[] { "Pos", "Vel", "Ang", "Ang Rate", "Target Vel", "Target Ang" });
-
-    // create shuffle tab
-    this.shuffleTab = shuffleTab;
-    shuffleTab
-        .createWidget("Drive " + module_details.CAN_ID_DRIVE, BuiltInWidgets.kNumberBar,
-            0 + (((module_details.CAN_ID_DRIVE - 1) % 2) * 3), 0 + (((module_details.CAN_ID_DRIVE - 1) / 2) * 2), 1, 2)
-        .withProperties(Map.of("Min", -10, "Max", 10));
-    shuffleTab
-        .createWidget("Turn " + module_details.CAN_ID_STEER, BuiltInWidgets.kGyro,
-            1 + (((module_details.CAN_ID_DRIVE - 1) % 2) * 3), 0 + (((module_details.CAN_ID_DRIVE - 1) / 2) * 2), 2, 2)
-        .withProperties(Map.of("Starting Angle",
-            this.angularOffset.unaryMinus().minus(Rotation2d.fromDegrees(270)).getDegrees() + 180));
+    this.details = moduleDetails;
+    this.angularOffset = Rotation2d.fromRadians(moduleDetails.ANGULAR_OFFSET);
 
     // --------------DRIVE MOTOR--------------
-    driveMotor = new TalonFX(module_details.CAN_ID_DRIVE);
+    driveMotor = new TalonFX(moduleDetails.CAN_ID_DRIVE);
     final var driveMotorConfig = new TalonFXConfiguration();
     driveMotorConfig.MotorOutput.Inverted = DriveConstants.DRIVE_MOTOR_INVERTED;
     driveMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    /* set the Gear Ratio used for encoder reads */
+    // set the Gear Ratio used for encoder reads
     driveMotorConfig.Feedback.SensorToMechanismRatio = DriveConstants.DRIVE_GEAR_RATIO;
-    /* enable and set Current Limiting to prevent brownouts */
+    // enable and set Current Limiting to prevent brownouts
     driveMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     driveMotorConfig.CurrentLimits.SupplyCurrentLimit = 40;
-    /* set the PID Config for the drive motor */
+    // set the PID Config for the drive motor
     driveMotorConfig.Slot0.kP = DriveConstants.DRIVE_P;
     driveMotorConfig.Slot0.kI = DriveConstants.DRIVE_I;
     driveMotorConfig.Slot0.kD = DriveConstants.DRIVE_D;
 
     driveMotor.getConfigurator().apply(driveMotorConfig);
-    driveController = new VelocityVoltage(0).withSlot(0);
+    driveController = new VelocityVoltage(0)/* .withFeedForward(DriveConstants.DRIVING_FF) */.withSlot(0);
 
     // --------------STEER MOTOR--------------
-    turnMotor = new SparkMax(module_details.CAN_ID_STEER, MotorType.kBrushless);
+    turnMotor = new SparkMax(moduleDetails.CAN_ID_STEER, MotorType.kBrushless);
     turnController = turnMotor.getClosedLoopController();
     final var turnMotorConfig = new SparkMaxConfig();
 
@@ -117,17 +94,22 @@ public class SwerveModule {
     // Apply position and velocity conversion factors for the turning encoder. We
     // want these in radians and radians per second to use with WPILib's swerve
     // APIs.
-    turnMotorConfig.absoluteEncoder.positionConversionFactor(DriveConstants.TURNING_ENCODER_POSITION_FACTOR)
+    turnMotorConfig.absoluteEncoder
+        .positionConversionFactor(DriveConstants.TURNING_ENCODER_POSITION_FACTOR)
         .velocityConversionFactor(DriveConstants.TURNING_ENCODER_VELOCITY_FACTOR);
 
     // Set the PID gains for the turning motor and
     // Enable PID wrap around for the turning motor. This will allow the PID
     // controller to go through 0 to get to the setpoint
     turnMotorConfig.closedLoop
-        .pidf(DriveConstants.TURNING_P, DriveConstants.TURNING_I, DriveConstants.TURNING_D,
+        .pidf(
+            DriveConstants.TURNING_P,
+            DriveConstants.TURNING_I,
+            DriveConstants.TURNING_D,
             DriveConstants.TURNING_FF)
         .positionWrappingEnabled(true)
-        .positionWrappingInputRange(DriveConstants.TURNING_ENCODER_POSITION_PID_MIN_INPUT,
+        .positionWrappingInputRange(
+            DriveConstants.TURNING_ENCODER_POSITION_PID_MIN_INPUT,
             DriveConstants.TURNING_ENCODER_POSITION_PID_MAX_INPUT)
         .outputRange(-1, 1)
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
@@ -141,6 +123,42 @@ public class SwerveModule {
     // --------------GO TO DEFAULTS--------------
     desiredState.angle = new Rotation2d(turnEncoder.getPosition());
     driveMotor.setPosition(0);
+  }
+
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    builder.addDoubleProperty(
+        "Desired Turn Angle (deg)",
+        () -> desiredState.angle.getDegrees(),
+        (newValue) -> {
+        });
+    builder.addDoubleProperty(
+        "Desired Drive Speed (m/s)",
+        () -> desiredState.speedMetersPerSecond,
+        (newValue) -> {
+        });
+
+    builder.addDoubleProperty(
+        "Current Turn Angle (deg)",
+        () -> Math.toDegrees(turnEncoder.getPosition()),
+        (newValue) -> {
+        });
+    builder.addDoubleProperty(
+        "Current Drive Distance (m)",
+        () -> driveMotor.getPosition().getValueAsDouble(),
+        (newValue) -> {
+        });
+
+    builder.addDoubleProperty(
+        "Current Turn Speed (deg/s)",
+        () -> Math.toDegrees(turnEncoder.getVelocity()),
+        (newValue) -> {
+        });
+    builder.addDoubleProperty(
+        "Current Drive Speed (m/s)",
+        () -> driveMotor.getVelocity().getValueAsDouble(),
+        (newValue) -> {
+        });
   }
 
   /**
@@ -166,7 +184,7 @@ public class SwerveModule {
         : new SwerveModuleState(-desiredState.speedMetersPerSecond, desiredState.angle);
     state = moduleRel ? state
         : new SwerveModuleState(state.speedMetersPerSecond,
-            state.angle.plus(Rotation2d.fromRadians(module_details.ANGULAR_OFFSET)));
+            state.angle.plus(Rotation2d.fromRadians(details.ANGULAR_OFFSET)));
     return state;
   }
 
@@ -215,21 +233,12 @@ public class SwerveModule {
         driveController
             .withVelocity(
                 // withVelocity accepts rps, not mps
-                optimizedDesiredState.speedMetersPerSecond / DriveConstants.WHEEL_CIRCUMFERENCE_METERS));// .withFeedForward(DriveConstants.DRIVING_FF));
+                optimizedDesiredState.speedMetersPerSecond / DriveConstants.WHEEL_CIRCUMFERENCE_METERS));
     turnController.setReference(
         optimizedDesiredState.angle.getRadians() + Math.PI,
         ControlType.kPosition);
 
     this.desiredState = optimizedDesiredState;
-
-    logger.log(new double[] {
-        driveMotor.getPosition().getValueAsDouble(),
-        driveMotor.getVelocity().getValueAsDouble(),
-        getRotation2d(false).getDegrees(),
-        turnEncoder.getVelocity() * (180 / Math.PI),
-        desiredState.speedMetersPerSecond,
-        desiredState.angle.getDegrees()
-    });
   }
 
   // private static final double intertia = 45;
@@ -279,14 +288,6 @@ public class SwerveModule {
       lastLimit = error > 160 ? 90 : 45; // release only when near the inverted target direction
       return new SwerveModuleState(desiredState.speedMetersPerSecond, desiredState.angle);
     }
-  }
-
-  /* Updates the shuffleboard tab with new values */
-  public void updateShuffleTab() {
-    var state = desiredState;
-
-    shuffleTab.getEntry("Turn " + module_details.CAN_ID_DRIVE).setDouble(state.angle.getDegrees());
-    shuffleTab.getEntry("Drive " + module_details.CAN_ID_DRIVE).setDouble(state.speedMetersPerSecond);
   }
 
   /** Zeroes the drive encoder. */

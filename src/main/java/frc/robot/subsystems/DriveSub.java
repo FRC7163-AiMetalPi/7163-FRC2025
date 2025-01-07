@@ -29,17 +29,16 @@ import edu.wpi.first.wpilibj.simulation.ADIS16470_IMUSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.constants.DriveConstants;
-import frc.robot.shufflecontrol.ShuffleTabController;
 import frc.robot.utils.SwerveModule;
 import frc.robot.utils.SwerveUtils;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveSub extends SubsystemBase {
   // Swerve Modules
-  private final SwerveModule frontLeft;
-  private final SwerveModule frontRight;
-  private final SwerveModule backLeft;
-  private final SwerveModule backRight;
+  private final SwerveModule frontLeft = new SwerveModule(DriveConstants.SWERVE_MODULE_FL);
+  private final SwerveModule frontRight = new SwerveModule(DriveConstants.SWERVE_MODULE_FR);
+  private final SwerveModule backLeft = new SwerveModule(DriveConstants.SWERVE_MODULE_BL);
+  private final SwerveModule backRight = new SwerveModule(DriveConstants.SWERVE_MODULE_BR);
 
   // The gyro sensor
   private final ADIS16470_IMU imu = new ADIS16470_IMU();
@@ -61,39 +60,18 @@ public class DriveSub extends SubsystemBase {
   private double prevTime = WPIUtilJNI.now() * 1e-6;
 
   // Pose estimation class for tracking robot pose
-  SwerveDriveOdometry odometry;
+  private final SwerveDriveOdometry odometry = new SwerveDriveOdometry(
+      DriveConstants.DRIVE_KINEMATICS,
+      Rotation2d.fromDegrees(imu.getAngle(IMUAxis.kZ)),
+      getModulePositions(),
+      new Pose2d());
 
   // Simulation Variables
-  ADIS16470_IMUSim imuSim = new ADIS16470_IMUSim(imu);
+  private final ADIS16470_IMUSim imuSim = new ADIS16470_IMUSim(imu);
   private Pose2d poseSim = new Pose2d();
-
-  private ShuffleTabController shuffleTab = new ShuffleTabController("Swerve");
 
   /** Creates a new DriveSubsystem. */
   public DriveSub() {
-    // instantiate the swerve modules
-    frontLeft = new SwerveModule(
-        DriveConstants.SWERVE_MODULE_FL,
-        shuffleTab);
-
-    frontRight = new SwerveModule(
-        DriveConstants.SWERVE_MODULE_FR,
-        shuffleTab);
-
-    backLeft = new SwerveModule(
-        DriveConstants.SWERVE_MODULE_BL,
-        shuffleTab);
-
-    backRight = new SwerveModule(
-        DriveConstants.SWERVE_MODULE_BR,
-        shuffleTab);
-
-    odometry = new SwerveDriveOdometry(
-        DriveConstants.DRIVE_KINEMATICS,
-        Rotation2d.fromDegrees(imu.getAngle(IMUAxis.kZ)),
-        getModulePositions(),
-        new Pose2d());
-
     // Configure PathPlanner auto
     try {
       var config = RobotConfig.fromGUISettings();
@@ -120,17 +98,15 @@ public class DriveSub extends SubsystemBase {
       return;
     }
 
-    SmartDashboard.putData(field);
+    SmartDashboard.putData("Field", field);
+    SmartDashboard.putData("FL Module", frontLeft);
+    SmartDashboard.putData("FR Module", frontRight);
+    SmartDashboard.putData("BL Module", backLeft);
+    SmartDashboard.putData("BR Module", backRight);
   }
 
   @Override
   public void periodic() {
-    // Update the odometry in the periodic block
-    frontLeft.updateShuffleTab();
-    frontRight.updateShuffleTab();
-    backLeft.updateShuffleTab();
-    backRight.updateShuffleTab();
-
     updateOdometry();
   }
 
