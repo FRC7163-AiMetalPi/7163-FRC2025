@@ -30,8 +30,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import frc.robot.Robot;
-import frc.robot.constants.SwerveDriveConstants;
-import frc.robot.constants.SwerveDriveConstants.S_MODULE_DETAILS;
+import frc.robot.constants.DriveConstants;
+import frc.robot.constants.DriveConstants.S_MODULE_DETAILS;
 import frc.robot.shufflecontrol.ShuffleTabController;
 import frc.robot.utils.logger.Logger;
 
@@ -91,17 +91,17 @@ public class SwerveModule {
     // --------------DRIVE MOTOR--------------
     driveMotor = new TalonFX(module_details.CAN_ID_DRIVE);
     final var driveMotorConfig = new TalonFXConfiguration();
-    driveMotorConfig.MotorOutput.Inverted = SwerveDriveConstants.DRIVE_MOTOR_INVERTED;
+    driveMotorConfig.MotorOutput.Inverted = DriveConstants.DRIVE_MOTOR_INVERTED;
     driveMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     /* set the Gear Ratio used for encoder reads */
-    driveMotorConfig.Feedback.SensorToMechanismRatio = SwerveDriveConstants.DRIVE_GEAR_RATIO;
+    driveMotorConfig.Feedback.SensorToMechanismRatio = DriveConstants.DRIVE_GEAR_RATIO;
     /* enable and set Current Limiting to prevent brownouts */
     driveMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     driveMotorConfig.CurrentLimits.SupplyCurrentLimit = 40;
     /* set the PID Config for the drive motor */
-    driveMotorConfig.Slot0.kP = SwerveDriveConstants.DRIVE_P;
-    driveMotorConfig.Slot0.kI = SwerveDriveConstants.DRIVE_I;
-    driveMotorConfig.Slot0.kD = SwerveDriveConstants.DRIVE_D;
+    driveMotorConfig.Slot0.kP = DriveConstants.DRIVE_P;
+    driveMotorConfig.Slot0.kI = DriveConstants.DRIVE_I;
+    driveMotorConfig.Slot0.kD = DriveConstants.DRIVE_D;
 
     driveMotor.getConfigurator().apply(driveMotorConfig);
     driveController = new VelocityVoltage(0).withSlot(0);
@@ -117,18 +117,18 @@ public class SwerveModule {
     // Apply position and velocity conversion factors for the turning encoder. We
     // want these in radians and radians per second to use with WPILib's swerve
     // APIs.
-    turnMotorConfig.absoluteEncoder.positionConversionFactor(SwerveDriveConstants.TURNING_ENCODER_POSITION_FACTOR)
-        .velocityConversionFactor(SwerveDriveConstants.TURNING_ENCODER_VELOCITY_FACTOR);
+    turnMotorConfig.absoluteEncoder.positionConversionFactor(DriveConstants.TURNING_ENCODER_POSITION_FACTOR)
+        .velocityConversionFactor(DriveConstants.TURNING_ENCODER_VELOCITY_FACTOR);
 
     // Set the PID gains for the turning motor and
     // Enable PID wrap around for the turning motor. This will allow the PID
     // controller to go through 0 to get to the setpoint
     turnMotorConfig.closedLoop
-        .pidf(SwerveDriveConstants.TURNING_P, SwerveDriveConstants.TURNING_I, SwerveDriveConstants.TURNING_D,
-            SwerveDriveConstants.TURNING_FF)
+        .pidf(DriveConstants.TURNING_P, DriveConstants.TURNING_I, DriveConstants.TURNING_D,
+            DriveConstants.TURNING_FF)
         .positionWrappingEnabled(true)
-        .positionWrappingInputRange(SwerveDriveConstants.TURNING_ENCODER_POSITION_PID_MIN_INPUT,
-            SwerveDriveConstants.TURNING_ENCODER_POSITION_PID_MAX_INPUT)
+        .positionWrappingInputRange(DriveConstants.TURNING_ENCODER_POSITION_PID_MIN_INPUT,
+            DriveConstants.TURNING_ENCODER_POSITION_PID_MAX_INPUT)
         .outputRange(-1, 1)
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
 
@@ -215,7 +215,7 @@ public class SwerveModule {
         driveController
             .withVelocity(
                 // withVelocity accepts rps, not mps
-                optimizedDesiredState.speedMetersPerSecond / SwerveDriveConstants.WHEEL_CIRCUMFERENCE_METERS));// .withFeedForward(DriveConstants.DRIVING_FF));
+                optimizedDesiredState.speedMetersPerSecond / DriveConstants.WHEEL_CIRCUMFERENCE_METERS));// .withFeedForward(DriveConstants.DRIVING_FF));
     turnController.setReference(
         optimizedDesiredState.angle.getRadians() + Math.PI,
         ControlType.kPosition);

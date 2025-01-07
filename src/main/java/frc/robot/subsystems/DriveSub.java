@@ -28,13 +28,13 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.ADIS16470_IMUSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.constants.SwerveDriveConstants;
+import frc.robot.constants.DriveConstants;
 import frc.robot.shufflecontrol.ShuffleTabController;
 import frc.robot.utils.SwerveModule;
 import frc.robot.utils.SwerveUtils;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class SwerveDriveSub extends SubsystemBase {
+public class DriveSub extends SubsystemBase {
   // Swerve Modules
   private final SwerveModule frontLeft;
   private final SwerveModule frontRight;
@@ -56,8 +56,8 @@ public class SwerveDriveSub extends SubsystemBase {
   private double currentTranslationDir = 0.0;
   private double currentTranslationMag = 0.0;
 
-  private SlewRateLimiter magLimiter = new SlewRateLimiter(SwerveDriveConstants.MAGNITUDE_SLEW_RATE);
-  private SlewRateLimiter rotLimiter = new SlewRateLimiter(SwerveDriveConstants.ROTATIONAL_SLEW_RATE);
+  private SlewRateLimiter magLimiter = new SlewRateLimiter(DriveConstants.MAGNITUDE_SLEW_RATE);
+  private SlewRateLimiter rotLimiter = new SlewRateLimiter(DriveConstants.ROTATIONAL_SLEW_RATE);
   private double prevTime = WPIUtilJNI.now() * 1e-6;
 
   // Pose estimation class for tracking robot pose
@@ -70,26 +70,26 @@ public class SwerveDriveSub extends SubsystemBase {
   private ShuffleTabController shuffleTab = new ShuffleTabController("Swerve");
 
   /** Creates a new DriveSubsystem. */
-  public SwerveDriveSub() {
+  public DriveSub() {
     // instantiate the swerve modules
     frontLeft = new SwerveModule(
-        SwerveDriveConstants.SWERVE_MODULE_FL,
+        DriveConstants.SWERVE_MODULE_FL,
         shuffleTab);
 
     frontRight = new SwerveModule(
-        SwerveDriveConstants.SWERVE_MODULE_FR,
+        DriveConstants.SWERVE_MODULE_FR,
         shuffleTab);
 
     backLeft = new SwerveModule(
-        SwerveDriveConstants.SWERVE_MODULE_BL,
+        DriveConstants.SWERVE_MODULE_BL,
         shuffleTab);
 
     backRight = new SwerveModule(
-        SwerveDriveConstants.SWERVE_MODULE_BR,
+        DriveConstants.SWERVE_MODULE_BR,
         shuffleTab);
 
     odometry = new SwerveDriveOdometry(
-        SwerveDriveConstants.DRIVE_KINEMATICS,
+        DriveConstants.DRIVE_KINEMATICS,
         Rotation2d.fromDegrees(imu.getAngle(IMUAxis.kZ)),
         getModulePositions(),
         new Pose2d());
@@ -103,8 +103,8 @@ public class SwerveDriveSub extends SubsystemBase {
           this::getRelativeChassisSpeeds,
           (speeds, feedforwards) -> driveRelative(speeds),
           new PPHolonomicDriveController(
-              SwerveDriveConstants.AUTO_TRANSLATION_PID,
-              SwerveDriveConstants.AUTO_ROTATION_PID),
+              DriveConstants.AUTO_TRANSLATION_PID,
+              DriveConstants.AUTO_ROTATION_PID),
           config,
           () -> {
             // Boolean supplier that controls when the path will be mirrored for the red
@@ -204,7 +204,7 @@ public class SwerveDriveSub extends SubsystemBase {
       // acceleration
       double directionSlewRate;
       if (currentTranslationMag != 0.0) {
-        directionSlewRate = Math.abs(SwerveDriveConstants.DIRECTION_SLEW_RATE / currentTranslationMag);
+        directionSlewRate = Math.abs(DriveConstants.DIRECTION_SLEW_RATE / currentTranslationMag);
       } else {
         directionSlewRate = 500.0; // some high number that means the slew rate is effectively instantaneous
       }
@@ -242,20 +242,20 @@ public class SwerveDriveSub extends SubsystemBase {
     }
 
     // Convert the commanded speeds into the correct units for the drivetrain
-    double xSpeedDelivered = xSpeedCommanded * SwerveDriveConstants.MAX_SPEED;
-    double ySpeedDelivered = ySpeedCommanded * SwerveDriveConstants.MAX_SPEED;
-    double rotDelivered = currentRotation * SwerveDriveConstants.MAX_ANGULAR_SPEED;
+    double xSpeedDelivered = xSpeedCommanded * DriveConstants.MAX_SPEED;
+    double ySpeedDelivered = ySpeedCommanded * DriveConstants.MAX_SPEED;
+    double rotDelivered = currentRotation * DriveConstants.MAX_ANGULAR_SPEED;
 
     // System.out.println(xSpeedDelivered + " " + ySpeedDelivered + " " +
     // rotDelivered +" "+ getHeading());
 
-    var swerveModuleStates = SwerveDriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(
+    var swerveModuleStates = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(
         fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
                 getHeading())
             : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
     SwerveDriveKinematics.desaturateWheelSpeeds(
-        swerveModuleStates, SwerveDriveConstants.MAX_SPEED);
+        swerveModuleStates, DriveConstants.MAX_SPEED);
 
     frontLeft.setDesiredState(swerveModuleStates[0]);
     frontRight.setDesiredState(swerveModuleStates[1]);
@@ -289,7 +289,7 @@ public class SwerveDriveSub extends SubsystemBase {
    */
   public void setModuleStates(SwerveModuleState[] desiredStates) {
     SwerveDriveKinematics.desaturateWheelSpeeds(
-        desiredStates, SwerveDriveConstants.MAX_SPEED);
+        desiredStates, DriveConstants.MAX_SPEED);
     frontLeft.setDesiredState(desiredStates[0]);
     frontRight.setDesiredState(desiredStates[1]);
     backLeft.setDesiredState(desiredStates[2]);
@@ -346,7 +346,7 @@ public class SwerveDriveSub extends SubsystemBase {
    * @return The turn rate of the robot, in degrees per second
    */
   public double getTurnRate() {
-    return imu.getRate(IMUAxis.kZ) * (SwerveDriveConstants.GYRO_REVERSED ? -1.0 : 1.0);
+    return imu.getRate(IMUAxis.kZ) * (DriveConstants.GYRO_REVERSED ? -1.0 : 1.0);
   }
 
   public double estimateDist() {
@@ -383,7 +383,7 @@ public class SwerveDriveSub extends SubsystemBase {
   }
 
   public ChassisSpeeds getRelativeChassisSpeeds() {
-    return SwerveDriveConstants.DRIVE_KINEMATICS.toChassisSpeeds(
+    return DriveConstants.DRIVE_KINEMATICS.toChassisSpeeds(
         frontLeft.getState(),
         frontRight.getState(),
         backLeft.getState(),
@@ -400,7 +400,7 @@ public class SwerveDriveSub extends SubsystemBase {
   public void simulationPeriodic() {
     final boolean optimizedAngle = false;
     final boolean moduleRel = false;
-    var speeds = SwerveDriveConstants.DRIVE_KINEMATICS.toChassisSpeeds(
+    var speeds = DriveConstants.DRIVE_KINEMATICS.toChassisSpeeds(
         frontLeft.getDesiredState(optimizedAngle, moduleRel),
         frontRight.getDesiredState(optimizedAngle, moduleRel),
         backLeft.getDesiredState(optimizedAngle, moduleRel),
