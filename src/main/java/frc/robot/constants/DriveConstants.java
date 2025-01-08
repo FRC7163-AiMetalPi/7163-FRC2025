@@ -4,6 +4,7 @@ package frc.robot.constants;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.pathplanner.lib.config.PIDConstants;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -41,68 +42,17 @@ public class DriveConstants {
   /** Rotational slew rate in percent per second (1 = 100%) */
   public static final double ROTATIONAL_SLEW_RATE = 8.0;
 
-  /** Gear ratio of the MAX Swerve Module driving motor */
-  public static final double DRIVE_GEAR_RATIO = 4.71;
+  /**
+   * Gear ratio of the MAX Swerve Module driving motor (gear ratio upgrade kit
+   * extra high speed 1)
+   */
+  public static final double DRIVE_GEAR_RATIO = 4.50;
 
   // Chassis configuration
   /** Distance between front and back wheel on robot in meters */
   public static final double TRACK_WIDTH = Units.inchesToMeters(20.7);
   /** Distance between centers of left and right wheels on robot in meters */
   public static final double WHEEL_BASE = Units.inchesToMeters(20.7);
-
-  /**
-   * Position of front left swerve module relative to robot center. Mainly for sim
-   * purposes.
-   */
-  // private static final Translation2d FRONT_LEFT_MODULE_TRANSLATION = new
-  // Translation2d(-TRACK_WIDTH / 2, WHEEL_BASE / 2);
-  /**
-   * Position of front right swerve module relative to robot center. Mainly for
-   * sim purposes.
-   */
-  // private static final Translation2d FRONT_RIGHT_MODULE_TRANSLATION = new
-  // Translation2d(TRACK_WIDTH / 2, WHEEL_BASE / 2);
-  /**
-   * Position of back left swerve module relative to robot center. Mainly for sim
-   * purposes.
-   */
-  // private static final Translation2d BACK_LEFT_MODULE_TRANSLATION = new
-  // Translation2d(-TRACK_WIDTH / 2, -WHEEL_BASE / 2);
-  /**
-   * Position of back right swerve module relative to robot center. Mainly for sim
-   * purposes.
-   */
-  // private static final Translation2d BACK_RIGHT_MODULE_TRANSLATION = new
-  // Translation2d(TRACK_WIDTH / 2, -WHEEL_BASE / 2);
-
-  // Angular offsets of the modules relative to the chassis in radians
-  /** Angular offset of front left module relative to chassis */
-  // public static final double FRONT_LEFT_CHASSIS_ANGULAR_OFFSET = 0;
-  /** Angular offset of front right module relative to chassis */
-  // public static final double FRONT_RIGHT_CHASSIS_ANGULAR_OFFSET = Math.PI / 2;
-  /** Angular offset of back left module relative to chassis */
-  // public static final double BACK_LEFT_CHASSIS_ANGULAR_OFFSET = -Math.PI / 2;
-  /** Angular offset of back right module relative to chassis */
-  // public static final double BACK_RIGHT_CHASSIS_ANGULAR_OFFSET = Math.PI;
-
-  // SPARK MAX CAN IDs
-  /** CAN ID for Front Left Module Driving Motor */
-  // public static final int FRONT_LEFT_DRIVING_CAN_ID = 1;
-  /** CAN ID for Front Right Module Driving Motor */
-  // public static final int FRONT_RIGHT_DRIVING_CAN_ID = 2;
-  /** CAN ID for Back Left Module Driving Motor */
-  // public static final int BACK_LEFT_DRIVING_CAN_ID = 3;
-  /** CAN ID for Back Right Module Driving Motor */
-  // public static final int BACK_RIGHT_DRIVING_CAN_ID = 4;
-
-  /** CAN ID for Front Left Module Turning Motor */
-  // public static final int FRONT_LEFT_TURNING_CAN_ID = 1;
-  /** CAN ID for Front Right Module Turning Motor */
-  // public static final int FRONT_RIGHT_TURNING_CAN_ID = 2;
-  /** CAN ID for Back Left Module Turning Motor */
-  // public static final int BACK_LEFT_TURNING_CAN_ID = 3;
-  /** CAN ID for Back Right Module Turning Motor */
-  // public static final int BACK_RIGHT_TURNING_CAN_ID = 4;
 
   /** IMU Gyro Inversion */
   public static final boolean GYRO_REVERSED = false;
@@ -119,21 +69,6 @@ public class DriveConstants {
    */
   public static final boolean TURNING_ENCODER_INVERTED = true;
 
-  /**
-   * Gear attached direct to the drive motor
-   * The MAXSwerve module can be configured with several different gears.
-   * This changes the drive speed of the module
-   * [L:12,M:13,H:14,EH1:14,EH2:14,EH3:15,EH4:16,EH5:16]
-   */
-  public static final int DRIVING_MOTOR_PINION_TEETH = 15;
-  /**
-   * Gear driven by the motor spur
-   * The MAXSwerve module can be configured with several different gears.
-   * This changes the drive speed of the module
-   * [L:22,M:22,H:22,EH1:21,EH2:20,EH3:20,EH4:20,EH5:19]
-   */
-  public static final int DRIVING_MOTOR_SPUR_TEETH = 20;
-
   // Calculations required for driving motor conversion factors and feed forward
   /** Free speed of the driving motor in rps */
   public static final double DRIVING_MOTOR_FREE_SPEED_RPS = FREE_SPEED_RPM / 60;
@@ -141,27 +76,6 @@ public class DriveConstants {
   public static final double WHEEL_DIAMETER_METERS = Units.inchesToMeters(3);
   /** Wheel circumference in meters */
   public static final double WHEEL_CIRCUMFERENCE_METERS = WHEEL_DIAMETER_METERS * Math.PI;
-  /** Driving distance per motor revolution, in meters */
-  public static final double DRIVE_DISTANCE_PER_MOTOR_REVOLUTION = WHEEL_CIRCUMFERENCE_METERS
-      / (2048 * DRIVE_GEAR_RATIO); // TODO: Why is 2048 there? I think there's a reason, but idk
-
-  /**
-   * 45 teeth on the wheel's bevel gear, 15 teeth on the bevel pinion
-   */
-  public static final double DRIVING_MOTOR_REDUCTION = ((double) DRIVING_MOTOR_SPUR_TEETH
-      / DRIVING_MOTOR_PINION_TEETH)
-      * (45.0 / 15.0);
-
-  /** Free speed of the wheel in rps */
-  public static final double DRIVE_WHEEL_FREE_SPEED_RPS = (DRIVING_MOTOR_FREE_SPEED_RPS
-      * WHEEL_CIRCUMFERENCE_METERS)
-      / DRIVING_MOTOR_REDUCTION;
-
-  /** Driving encoder position factor */
-  public static final double DRIVING_ENCODER_POSITION_FACTOR = (WHEEL_DIAMETER_METERS * Math.PI)
-      / DRIVING_MOTOR_REDUCTION; // meters
-  /** Driving encoder velocity factor */
-  public static final double DRIVING_ENCODER_VELOCITY_FACTOR = DRIVING_ENCODER_POSITION_FACTOR / 60.0; // m/s
 
   /** Turning encoder position factor */
   public static final double TURNING_ENCODER_POSITION_FACTOR = (2 * Math.PI); // radians
@@ -174,7 +88,7 @@ public class DriveConstants {
   public static final double DRIVE_P = 0.7;
   public static final double DRIVE_I = 0.0;// 5;
   public static final double DRIVE_D = 0.05;
-  public static final double DRIVING_FF = 1 / DRIVE_WHEEL_FREE_SPEED_RPS;
+  public static final double DRIVING_FF = 0;
 
   public static final double TURNING_P = 0.25;
   public static final double TURNING_I = 0.001;
@@ -228,34 +142,34 @@ public class DriveConstants {
   public static final SwerveModuleDetails SWERVE_MODULE_FL = new SwerveModuleDetails(
       1, // Drive motor CAN ID
       1, // Steer motor CAN ID
-      0, // Offset rel to FL module
+      new Rotation2d(), // Offset rel to FL module
       new Translation2d(-TRACK_WIDTH / 2, WHEEL_BASE / 2) // location rel to centre
   );
   public static final SwerveModuleDetails SWERVE_MODULE_FR = new SwerveModuleDetails(
       2, // Drive motor CAN ID
       2, // Steer motor CAN ID
-      Math.PI / 2, // Offset rel to FL module
+      new Rotation2d(Math.PI / 2), // Offset rel to FL module
       new Translation2d(TRACK_WIDTH / 2, WHEEL_BASE / 2) // location rel to centre
   );
   public static final SwerveModuleDetails SWERVE_MODULE_BL = new SwerveModuleDetails(
       3, // Drive motor CAN ID
       3, // Steer motor CAN ID
-      -Math.PI / 2, // Offset rel to FL module
+      new Rotation2d(-Math.PI / 2), // Offset rel to FL module
       new Translation2d(-TRACK_WIDTH / 2, -WHEEL_BASE / 2) // location rel to centre
   );
   public static final SwerveModuleDetails SWERVE_MODULE_BR = new SwerveModuleDetails(
       4, // Drive motor CAN ID
       4, // Steer motor CAN ID
-      Math.PI, // Offset rel to FL module
+      new Rotation2d(Math.PI), // Offset rel to FL module
       new Translation2d(TRACK_WIDTH / 2, -WHEEL_BASE / 2) // location rel to centre
   );
 
   /** Swerve Kinematics */
   public static final SwerveDriveKinematics DRIVE_KINEMATICS = new SwerveDriveKinematics(
-      SWERVE_MODULE_FL.location,
-      SWERVE_MODULE_FR.location,
-      SWERVE_MODULE_BL.location,
-      SWERVE_MODULE_BR.location);
+      SWERVE_MODULE_FL.location(),
+      SWERVE_MODULE_FR.location(),
+      SWERVE_MODULE_BL.location(),
+      SWERVE_MODULE_BR.location());
 
   public static record SwerveModuleDetails(
       /** CAN ID for the module's Driving Motor */
@@ -266,7 +180,7 @@ public class DriveConstants {
        * Angular offset of the module around the robot's center, FL module is at 0,
        * top down CW positive.
        */
-      double angularOffsetRadians,
+      Rotation2d angularOffset,
       /**
        * Location of module relative to robot center, top down, right and front pos.
        * Mainly for sim purposes.

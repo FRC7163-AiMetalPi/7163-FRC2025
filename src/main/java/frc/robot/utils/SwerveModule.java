@@ -28,11 +28,12 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import frc.robot.Robot;
 import frc.robot.constants.DriveConstants;
 import frc.robot.constants.DriveConstants.SwerveModuleDetails;
 
 public class SwerveModule implements Sendable {
+  private final SwerveModuleDetails details;
+
   private final TalonFX driveMotor;
   private final SparkMax turnMotor;
 
@@ -41,31 +42,19 @@ public class SwerveModule implements Sendable {
   private final VelocityVoltage driveController;
   private final SparkClosedLoopController turnController;
 
-  // private final int moduleId;
-  private final SwerveModuleDetails details;
-
-  private int lastLimit = 0;
-
-  private boolean isFlipped = false;
-
-  private Rotation2d angularOffset = new Rotation2d(0);
-  private SwerveModuleState desiredState = new SwerveModuleState(0.0, new Rotation2d());
+  /** the module's desired state, <strong>relative to the module.</strong> */
+  private SwerveModuleState desiredState = new SwerveModuleState(0, new Rotation2d());
 
   /**
    * Constructs a new SwerveModule for a MAX Swerve Module housing a Falcon
    * driving motor and a Neo 550 Turning Motor.
    * 
-   * @param drivingCANId  CAN ID for the driving motor
-   * @param turningCANId  CAN ID for the turning motor
-   * @param angularOffset Angular offset of the module in radians
-   * @param shuffleTab    The shuffleboard tab to add widgets to
+   * @param moduleDetails the details of the module
    */
   public SwerveModule(SwerveModuleDetails moduleDetails) {
-    // moduleId = settings.CAN_ID_DRIVE;
     this.details = moduleDetails;
-    this.angularOffset = Rotation2d.fromRadians(moduleDetails.angularOffsetRadians());
 
-    // --------------DRIVE MOTOR--------------
+    // DRIVE MOTOR CONFIG
     driveMotor = new TalonFX(moduleDetails.driveCANID());
     final var driveMotorConfig = new TalonFXConfiguration();
     driveMotorConfig.MotorOutput.Inverted = DriveConstants.DRIVE_MOTOR_INVERTED;
@@ -81,9 +70,9 @@ public class SwerveModule implements Sendable {
     driveMotorConfig.Slot0.kD = DriveConstants.DRIVE_D;
 
     driveMotor.getConfigurator().apply(driveMotorConfig);
-    driveController = new VelocityVoltage(0)/* .withFeedForward(DriveConstants.DRIVING_FF) */.withSlot(0);
+    driveController = new VelocityVoltage(0).withFeedForward(DriveConstants.DRIVING_FF).withSlot(0);
 
-    // --------------STEER MOTOR--------------
+    // TURNING MOTOR CONFIG
     turnMotor = new SparkMax(moduleDetails.steerCANID(), MotorType.kBrushless);
     turnController = turnMotor.getClosedLoopController();
     final var turnMotorConfig = new SparkMaxConfig();
@@ -129,168 +118,167 @@ public class SwerveModule implements Sendable {
   public void initSendable(SendableBuilder builder) {
     builder.addDoubleProperty(
         "Desired Turn Angle (deg)",
-        () -> desiredState.angle.getDegrees(),
+        () -> getDesiredState().angle.getDegrees(),
         (newValue) -> {
         });
     builder.addDoubleProperty(
         "Desired Drive Speed (m/s)",
-        () -> desiredState.speedMetersPerSecond,
+        () -> getDesiredState().speedMetersPerSecond,
         (newValue) -> {
         });
 
     builder.addDoubleProperty(
         "Current Turn Angle (deg)",
-        () -> Math.toDegrees(turnEncoder.getPosition()),
+        () -> Math.toDegrees(getTurnAngle()),
         (newValue) -> {
         });
     builder.addDoubleProperty(
         "Current Drive Distance (m)",
-        () -> driveMotor.getPosition().getValueAsDouble(),
+        this::getDrivePosition,
         (newValue) -> {
         });
 
     builder.addDoubleProperty(
         "Current Turn Speed (deg/s)",
-        () -> Math.toDegrees(turnEncoder.getVelocity()),
+        () -> Math.toDegrees(getTurnVelocity()),
         (newValue) -> {
         });
     builder.addDoubleProperty(
         "Current Drive Speed (m/s)",
-        () -> driveMotor.getVelocity().getValueAsDouble(),
+        this::getDriveVelocity,
         (newValue) -> {
         });
   }
 
-  /**
-   * Returns the current raw state of the module.
-   *
-   * @return The current state of the module.
-   */
+  /** @return the module's drive wheel position (m) */
+  public double getDrivePosition() {
+    return driveMotor.getPosition().getValueAsDouble() * DriveConstants.WHEEL_CIRCUMFERENCE_METERS;
+  }
+
+  /** @return the module's drive wheel velocity (m/s) */
+  public double getDriveVelocity() {
+    return driveMotor.getVelocity().getValueAsDouble() * DriveConstants.WHEEL_CIRCUMFERENCE_METERS;
+  }
+
+  /** @return the module's robot-relative turning angle (rad) */
+  public double getTurnAngle() {
+    return turnEncoder.getPosition() - details.angularOffset().getRadians();
+  }
+
+  /** @return the module's robot-relative turning angle as a {@link Rotation2d} */
+  public Rotation2d getTurnRotation2d() {
+    return new Rotation2d(getTurnAngle());
+  }
+
+  /** @return the module's turning velocity (rad/s) */
+  public double getTurnVelocity() {
+    return turnEncoder.getVelocity();
+  }
+
+  /** @return the module's current robot-relative state */
   public SwerveModuleState getState() {
-    // Apply chassis angular offset to the encoder position to get the position
-    // relative to the chassis.
-    return new SwerveModuleState(
-        driveMotor.getVelocity().getValueAsDouble(),
-        getRotation2d(false));
+    return new SwerveModuleState(getDriveVelocity(), getTurnRotation2d());
   }
 
-  /**
-   * Returns the current desired state of the module
-   * 
-   * @return The current desired state of the module
-   */
-  public SwerveModuleState getDesiredState(boolean optimizedAngle, boolean moduleRel) {
-    SwerveModuleState state = optimizedAngle || !isFlipped ? desiredState
-        : new SwerveModuleState(-desiredState.speedMetersPerSecond, desiredState.angle);
-    state = moduleRel ? state
-        : new SwerveModuleState(state.speedMetersPerSecond,
-            state.angle.plus(Rotation2d.fromRadians(details.angularOffsetRadians())));
-    return state;
-  }
-
-  /**
-   * Returns the current position of the module.
-   *
-   * @return The current position of the module.
-   */
+  /** @return the module's current robot-relative position */
   public SwerveModulePosition getPosition() {
-    // Apply chassis angular offset to the encoder position to get the position
-    // relative to the chassis.
-    Rotation2d angle = getRotation2d(true).minus(angularOffset);
-    // if the wheel is flipped, flip the returned angle too
-    return new SwerveModulePosition(Math.abs(driveMotor.getPosition().getValueAsDouble()), angle);
-  }
-
-  public Rotation2d getRotation2d(boolean optimizedAngle) {
-    // take care, get position only returns as rotations when a scale factor is not
-    // set
-    Rotation2d angle = Rotation2d.fromRadians(turnEncoder.getPosition());
-    if (Robot.isSimulation()) {
-      angle = desiredState.angle;
-    }
-    if (isFlipped)
-      angle = angle.minus(Rotation2d.fromDegrees(180));
-    return angle;
+    return new SwerveModulePosition(getDrivePosition(), getTurnRotation2d());
   }
 
   /**
-   * Sets the desired state for the module.
-   *
-   * @param desiredState Desired state with speed and angle.
+   * sets the desired state of the module.
+   * 
+   * @param state the desired state, relative to the robot.
    */
-  public void setDesiredState(SwerveModuleState desiredState) {
-    // Apply chassis angular offset to the desired state.
-    SwerveModuleState correctedDesiredState = new SwerveModuleState(
-        desiredState.speedMetersPerSecond,
-        desiredState.angle.minus(angularOffset));
+  public void setDesiredState(SwerveModuleState state) {
+    // convert from robot-relative angle to module-relative angle
+    state.angle = state.angle.plus(details.angularOffset());
 
-    // Optimize the reference state to avoid spinning further than 90 degrees.
-    SwerveModuleState optimizedDesiredState = /* SwerveModuleState. */optimize(
-        correctedDesiredState,
-        getRotation2d(false));
+    // if the desired state's speed is low enough, we can just stop the motors to
+    // prevent motor weirdness
+    if (Math.abs(state.speedMetersPerSecond) < 0.001) {
+      desiredState = state;
+      stop();
+      return;
+    }
 
+    // TODO: Make a good SwerveModuleState optimizer
+    state.optimize(getTurnRotation2d());
     driveMotor.setControl(
-        driveController
-            .withVelocity(
-                // withVelocity accepts rps, not mps
-                optimizedDesiredState.speedMetersPerSecond / DriveConstants.WHEEL_CIRCUMFERENCE_METERS));
-    turnController.setReference(
-        optimizedDesiredState.angle.getRadians() + Math.PI,
-        ControlType.kPosition);
+        driveController.withVelocity(state.speedMetersPerSecond / DriveConstants.WHEEL_CIRCUMFERENCE_METERS));
+    turnController.setReference(state.angle.getRadians(), ControlType.kPosition);
 
-    this.desiredState = optimizedDesiredState;
+    desiredState = state;
+  }
+
+  /**
+   * @return the desired state of the module, relative to the
+   *         robot.
+   */
+  public SwerveModuleState getDesiredState() {
+    // we must convert to a robot-relative angle, since desiredState is relative to
+    // the module.
+    return new SwerveModuleState(
+        desiredState.speedMetersPerSecond,
+        desiredState.angle.minus(details.angularOffset()));
   }
 
   // private static final double intertia = 45;
-  // TODO finish
-  /* Optimises wheel angle, using an inertia based system *//*
-                                                             * public SwerveModuleState optimize(SwerveModuleState
-                                                             * desiredState, Rotation2d currentAngle) {
-                                                             * var turnSpeed = 0;//Subsystems.swerveDrive.getTurnRate();
-                                                             * double threshold = 0;//90 + MathUtil.clamp(turnSpeed *
-                                                             * intertia, -80, 80);
-                                                             * 
-                                                             * var delta = desiredState.angle.minus(currentAngle);
-                                                             * if (delta.getDegrees() > threshold || delta.getDegrees()
-                                                             * < 180-threshold) {
-                                                             * isFlipped = true;
-                                                             * return new SwerveModuleState(
-                                                             * -desiredState.speedMetersPerSecond,
-                                                             * desiredState.angle.rotateBy(Rotation2d.fromDegrees(180.0)
-                                                             * ));
-                                                             * } else {
-                                                             * isFlipped = false;
-                                                             * return new
-                                                             * SwerveModuleState(desiredState.speedMetersPerSecond,
-                                                             * desiredState.angle);
-                                                             * }
-                                                             * }
-                                                             */
-
+  /** Optimises wheel angle, using an inertia based system */
   /*
+   * public SwerveModuleState optimize(SwerveModuleState
+   * desiredState, Rotation2d currentAngle) {
+   * var turnSpeed = 0;//Subsystems.swerveDrive.getTurnRate();
+   * double threshold = 0;//90 + MathUtil.clamp(turnSpeed *
+   * intertia, -80, 80);
+   * 
+   * var delta = desiredState.angle.minus(currentAngle);
+   * if (delta.getDegrees() > threshold || delta.getDegrees()
+   * < 180-threshold) {
+   * isFlipped = true;
+   * return new SwerveModuleState(
+   * -desiredState.speedMetersPerSecond,
+   * desiredState.angle.rotateBy(Rotation2d.fromDegrees(180.0)
+   * ));
+   * } else {
+   * isFlipped = false;
+   * return new
+   * SwerveModuleState(desiredState.speedMetersPerSecond,
+   * desiredState.angle);
+   * }
+   * }
+   */
+
+  /**
    * Optimises the wheel pivot direction to reduce time spent turning
    * uses a moving threshold to reduce flip-floping when near the 90deg point
    */
-  public SwerveModuleState optimize(SwerveModuleState desiredState, Rotation2d currentAngle) {
-    var delta = desiredState.angle.minus(currentAngle);
-    double error = Math.abs(delta.getDegrees());
-    int limit = lastLimit;
+  /*
+   * public SwerveModuleState optimize(SwerveModuleState desiredState, Rotation2d
+   * currentAngle) {
+   * var delta = desiredState.angle.minus(currentAngle);
+   * double error = Math.abs(delta.getDegrees());
+   * int limit = lastLimit;
+   * 
+   * // optimizes by inverting the turn if the module is more than the limit
+   * if (error < limit) {
+   * lastLimit = error < 20 ? 90 : 135; // release only when near the target
+   * direction
+   * isFlipped = true;
+   * return new SwerveModuleState(
+   * -desiredState.speedMetersPerSecond,
+   * desiredState.angle.rotateBy(Rotation2d.kPi));
+   * } else {
+   * isFlipped = false;
+   * lastLimit = error > 160 ? 90 : 45; // release only when near the inverted
+   * target direction
+   * return new SwerveModuleState(desiredState.speedMetersPerSecond,
+   * desiredState.angle);
+   * }
+   * }
+   */
 
-    // optimizes by inverting the turn if the module is more than the limit
-    if (error < limit) {
-      lastLimit = error < 20 ? 90 : 135; // release only when near the target direction
-      isFlipped = true;
-      return new SwerveModuleState(
-          -desiredState.speedMetersPerSecond,
-          desiredState.angle.rotateBy(Rotation2d.fromDegrees(180.0)));
-    } else {
-      isFlipped = false;
-      lastLimit = error > 160 ? 90 : 45; // release only when near the inverted target direction
-      return new SwerveModuleState(desiredState.speedMetersPerSecond, desiredState.angle);
-    }
-  }
-
-  /** Zeroes the drive encoder. */
+  /** resets the drive encoder */
   public void resetEncoders() {
     driveMotor.setPosition(0);
   }
@@ -298,5 +286,11 @@ public class SwerveModule implements Sendable {
   /** reset turn motor pid I accumulation to 0 */
   public void resetIntegral() {
     turnController.setIAccum(0);
+  }
+
+  /** stops both the drive and turning motors. */
+  public void stop() {
+    driveMotor.set(0);
+    turnMotor.set(0);
   }
 }
