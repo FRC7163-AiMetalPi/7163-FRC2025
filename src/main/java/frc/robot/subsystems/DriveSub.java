@@ -10,12 +10,12 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.simulation.ADIS16470_IMUSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.constants.DriveConstants;
+import frc.robot.utils.PhotonBridge;
 import frc.robot.utils.SwerveModule;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -40,13 +41,13 @@ public class DriveSub extends SubsystemBase {
   private final ADIS16470_IMU imu = new ADIS16470_IMU();
 
   // Photon Bridge
-  // public final PhotonBridge photon = new PhotonBridge();
+  public final PhotonBridge photon = new PhotonBridge();
 
   // Field for robot viz
   private final Field2d field = new Field2d();
 
   // Pose estimation class for tracking robot pose
-  private final SwerveDriveOdometry odometry = new SwerveDriveOdometry(
+  private final SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(
       DriveConstants.DRIVE_KINEMATICS,
       Rotation2d.fromDegrees(imu.getAngle(IMUAxis.kZ)),
       getModulePositions(),
@@ -112,18 +113,19 @@ public class DriveSub extends SubsystemBase {
    * This should be called every robot tick, in the periodic method.
    */
   private void updateOdometry() {
-    odometry.update(getRotation2d(), getModulePositions());
+    poseEstimator.update(getRotation2d(), getModulePositions());
 
-    // photon.getEstimatedGlobalPose()
-    // .ifPresent((visionResult) -> {
-    // var visionPose = visionResult.estimatedPose.toPose2d();
+    photon.getEstimatedPose()
+        .ifPresent((visionResult) -> {
+          // Reject any egregiously incorrect vision pose estimates
+          final var visionPose = visionResult.estimatedPose.toPose2d();
+          final var currentPose = getPose();
+          final var errorMeters = visionPose.getTranslation().getDistance(currentPose.getTranslation());
+          if (errorMeters > 1)
+            return;
 
-    // // Reject any egregiously incorrect vision pose estimates
-    // if (visionPose.getTranslation().getDistance(getPose().getTranslation()) > 1)
-    // return;
-
-    // odometry.addVisionMeasurement(visionPose, 0.02);
-    // });
+          poseEstimator.addVisionMeasurement(visionPose, visionResult.timestampSeconds);
+        });
 
     field.setRobotPose(getPose());
   }
@@ -154,7 +156,7 @@ public class DriveSub extends SubsystemBase {
 
   /** @return the currently estimated pose of the robot. */
   public Pose2d getPose() {
-    return RobotBase.isReal() ? odometry.getPoseMeters() : poseSim;
+    return RobotBase.isReal() ? poseEstimator.getEstimatedPosition() : poseSim;
   }
 
   /**
@@ -169,7 +171,7 @@ public class DriveSub extends SubsystemBase {
       return;
     }
 
-    odometry.resetPosition(getRotation2d(), getModulePositions(), pose);
+    poseEstimator.resetPosition(getRotation2d(), getModulePositions(), pose);
   }
 
   /**
