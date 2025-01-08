@@ -56,15 +56,15 @@ public class PhotonBridge {
   }
 
   public Optional<EstimatedRobotPose> getEstimatedPose() {
-    if (cam.isConnected()) {
-      return getLatestResult().flatMap(poseEstimator::update);
-    } else {
-      System.err.println("PhotonBridge: Error: Camera not connected");
-      return Optional.empty();
-    }
+    return getLatestResult().flatMap(poseEstimator::update);
   }
 
   public Optional<PhotonPipelineResult> getLatestResult() {
+    if (!cam.isConnected()) {
+      System.err.println("PhotonBridge: Error: Camera not connected");
+      return Optional.empty();
+    }
+
     final var results = cam.getAllUnreadResults();
     if (results.isEmpty()) {
       return Optional.empty();
