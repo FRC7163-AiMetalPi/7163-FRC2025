@@ -49,10 +49,11 @@ public class RobotContainer {
     // Robot Automations
     // flash leds yellow during endgame
     new Trigger(() -> DriverStation.isTeleop() && DriverStation.getMatchTime() <= 30)
-        .onTrue(new RepeatedFlashLEDCommand((FlashSolidLEDCommand)(new FlashSolidLEDCommand(Color.kYellow, 300).withZone()), 5));
+        .onTrue(new RepeatedFlashLEDCommand(
+            (FlashSolidLEDCommand) (new FlashSolidLEDCommand(Color.kYellow, 300).withZone()), 5));
 
     DigitalInput dio0 = new DigitalInput(0);
-    new Trigger(()->dio0.get()).whileTrue(new SolidLEDCommand(Color.kGreen).withZone(1));
+    new Trigger(() -> dio0.get()).whileTrue(new SolidLEDCommand(Color.kGreen).withZone(1));
     // +----------------+
     // | PILOT CONTROLS |
     // +----------------+
@@ -63,23 +64,20 @@ public class RobotContainer {
     // OI.pilot.start().onTrue(new InstantCommand(() ->
     // Variables.invertDriveDirection = !Variables.invertDriveDirection));
 
-    //OI.pilot.y().onTrue(new InstantCommand(()->BatteryPercentLEDCommand.runFor(50)));
+    // OI.pilot.y().onTrue(new
+    // InstantCommand(()->BatteryPercentLEDCommand.runFor(50)));
     OI.pilot.a().onTrue(new FlashSolidLEDCommand(Color.kCrimson, 1000).withZone());
     OI.pilot.b().onTrue(new RepeatedFlashLEDCommand(
-        (FlashSolidLEDCommand)(new FlashSolidLEDCommand(Color.kYellow, 200).withZone(new int[]{1,2})),
+        (FlashSolidLEDCommand) (new FlashSolidLEDCommand(Color.kYellow, 200).withZone(new int[] { 1, 2 })),
         5).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
     OI.pilot.x().onTrue(new RepeatedFlashLEDCommand(
-        (FlashSolidLEDCommand)(new FlashSolidLEDCommand(Color.kBlue, 200).withZone(new int[]{0})),
+        (FlashSolidLEDCommand) (new FlashSolidLEDCommand(Color.kBlue, 200).withZone(new int[] { 0 })),
         5));
 
-    // set field relitive  Arrays.asList(Color.kBlue, Color.kRed)
-    OI.pilot.leftTrigger(0.5)
-        .onTrue(new InstantCommand(() -> Variables.fieldRelative = false))
-        .onFalse(new InstantCommand(()-> Variables.fieldRelative = true));
-
-    //OI.pilot.start()
-    //    .onTrue(
-    //        new InstantCommand(() -> Subsystems.swerveDrive.zeroHeading(), Subsystems.swerveDrive));
+    // OI.pilot.start()
+    // .onTrue(
+    // new InstantCommand(() -> Subsystems.swerveDrive.zeroHeading(),
+    // Subsystems.swerveDrive));
 
     // Drive bindings handled in teleop command
   }
