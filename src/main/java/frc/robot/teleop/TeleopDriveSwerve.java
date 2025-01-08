@@ -25,8 +25,8 @@ public class TeleopDriveSwerve extends Command {
   @Override
   public void execute() {
     double limiter = OI.pilot.getRightTriggerAxis();
-    double booster = OI.pilot.rightBumper().getAsBoolean() ? 1 : 0;
-    boolean fieldRelative = !OI.pilot.back().getAsBoolean();
+    double booster = OI.pilot.getHID().getRightBumperButton() ? 1 : 0;
+    boolean fieldRelative = !OI.pilot.getHID().getBackButton();
 
     // organise field relative switch
     final var control = settings.fitSwerve(

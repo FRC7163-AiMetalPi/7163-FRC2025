@@ -290,8 +290,8 @@ public class DriveSub extends SubsystemBase {
     imuSim.setGyroAngleZ(field.getRobotPose().getRotation().getDegrees());
     poseSim = poseSim.exp(
         new Twist2d(
+            speeds.vxMetersPerSecond * 0.02,
             speeds.vyMetersPerSecond * 0.02,
-            -speeds.vxMetersPerSecond * 0.02,
             speeds.omegaRadiansPerSecond * 0.02));
 
     photon.simulationPeriodic(getPose());
