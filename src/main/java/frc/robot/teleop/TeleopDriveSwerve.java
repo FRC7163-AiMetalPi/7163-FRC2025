@@ -30,9 +30,9 @@ public class TeleopDriveSwerve extends Command {
 
     // organise field relative switch
     final var control = settings.fitSwerve(
-        OI.pilot.getLeftX(),
         -OI.pilot.getLeftY(),
-        OI.pilot.getRightX(),
+        -OI.pilot.getLeftX(),
+        -OI.pilot.getRightX(),
         booster,
         limiter);
 
