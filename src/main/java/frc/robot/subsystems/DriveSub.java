@@ -294,6 +294,6 @@ public class DriveSub extends SubsystemBase {
             -speeds.vxMetersPerSecond * 0.02,
             speeds.omegaRadiansPerSecond * 0.02));
 
-    // photon.simulationPeriodic(getPose());
+    photon.simulationPeriodic(getPose());
   }
 }
