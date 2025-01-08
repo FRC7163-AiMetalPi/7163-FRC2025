@@ -11,9 +11,6 @@ import frc.robot.LEDs.BatteryPercentLEDCommand;
 import frc.robot.LEDs.ClearLEDCommand;
 import frc.robot.LEDs.RainbowLEDCommand;
 import frc.robot.LEDs.TeamColorLEDCommand;
-//import frc.robot.commands.RainbowLEDCommand;
-//import frc.robot.shufflecontrol.ShuffleControl;
-import frc.robot.utils.logger.Logger;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -72,7 +69,6 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     new RainbowLEDCommand().withZone().schedule();
-    Logger.pauseAllLoggers();
     System.out
         .println("Disabled ----------------------------------------------------------------------------------------");
     new TeamColorLEDCommand().withZone(new int[] { 1, 2 }).schedule();
@@ -98,7 +94,6 @@ public class Robot extends TimedRobot {
     if (autoCommand != null) {
       autoCommand.schedule();
     }
-    Logger.unpauseAllLoggers();
     System.out
         .println("Auto Start --------------------------------------------------------------------------------------");
     // Subsystems.swerveDrive.resetIntegral();
@@ -120,7 +115,6 @@ public class Robot extends TimedRobot {
     if (autoCommand != null) {
       autoCommand.cancel();
     }
-    Logger.unpauseAllLoggers();
     System.out
         .println("Teleop Start ------------------------------------------------------------------------------------");
     // Subsystems.swerveDrive.resetIntegral();
@@ -136,7 +130,6 @@ public class Robot extends TimedRobot {
     batteryLEDDisplay.finish();
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
-    Logger.unpauseAllLoggers();
     System.out
         .println("Test Start --------------------------------------------------------------------------------------");
   }
