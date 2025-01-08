@@ -49,9 +49,9 @@ public class DriveConstants {
   public static final double DRIVE_GEAR_RATIO = 4.50;
 
   // Chassis configuration
-  /** Distance between front and back wheel on robot in meters */
-  public static final double TRACK_WIDTH = Units.inchesToMeters(20.7);
   /** Distance between centers of left and right wheels on robot in meters */
+  public static final double TRACK_WIDTH = Units.inchesToMeters(20.7);
+  /** Distance between front and back wheel on robot in meters */
   public static final double WHEEL_BASE = Units.inchesToMeters(20.7);
 
   /** IMU Gyro Inversion */
@@ -103,18 +103,7 @@ public class DriveConstants {
   /** Auto module max speed in m/s */
   public static final double MAX_MODULE_SPEED = 4.5;
   /** Drivebase radius in m (distance from center of robot to farthest module) */
-  public static final double DRIVEBASE_RADIUS = Math
-      .sqrt(Math.pow(WHEEL_BASE / 2, 2) + Math.pow(TRACK_WIDTH / 2, 2));
-
-  public static final double updateShuffleInterval = 0.1 / 0.02; /* (x / 20ms) */
-
-  /**
-   * Auto angular speed and acceleration constraints in radians per second and
-   * radians per second squared
-   */
-  public static final TrapezoidProfile.Constraints AUTO_THETA_CONSTRAINTS = new TrapezoidProfile.Constraints(
-      MAX_ANGULAR_SPEED,
-      MAX_ANGULAR_ACCELERATION);
+  public static final double DRIVEBASE_RADIUS = Math.hypot(WHEEL_BASE / 2, TRACK_WIDTH / 2);
 
   /*
    * public static DriveBaseFit PILOT_SETTINGS = DriveBaseFit(
@@ -142,26 +131,26 @@ public class DriveConstants {
   public static final SwerveModuleDetails SWERVE_MODULE_FL = new SwerveModuleDetails(
       1, // Drive motor CAN ID
       1, // Steer motor CAN ID
-      new Rotation2d(), // Offset rel to FL module
-      new Translation2d(-TRACK_WIDTH / 2, WHEEL_BASE / 2) // location rel to centre
+      Rotation2d.kZero, // offset relative to FL
+      new Translation2d(WHEEL_BASE / 2, TRACK_WIDTH / 2) // location rel to centre
   );
   public static final SwerveModuleDetails SWERVE_MODULE_FR = new SwerveModuleDetails(
       2, // Drive motor CAN ID
       2, // Steer motor CAN ID
-      new Rotation2d(Math.PI / 2), // Offset rel to FL module
-      new Translation2d(TRACK_WIDTH / 2, WHEEL_BASE / 2) // location rel to centre
+      Rotation2d.kCW_90deg, // offset relative to FL
+      new Translation2d(WHEEL_BASE / 2, -TRACK_WIDTH / 2) // location rel to centre
   );
   public static final SwerveModuleDetails SWERVE_MODULE_BL = new SwerveModuleDetails(
       3, // Drive motor CAN ID
       3, // Steer motor CAN ID
-      new Rotation2d(-Math.PI / 2), // Offset rel to FL module
-      new Translation2d(-TRACK_WIDTH / 2, -WHEEL_BASE / 2) // location rel to centre
+      Rotation2d.kCCW_90deg, // Offset rel to FL module
+      new Translation2d(-WHEEL_BASE / 2, TRACK_WIDTH / 2) // location rel to centre
   );
   public static final SwerveModuleDetails SWERVE_MODULE_BR = new SwerveModuleDetails(
       4, // Drive motor CAN ID
       4, // Steer motor CAN ID
-      new Rotation2d(Math.PI), // Offset rel to FL module
-      new Translation2d(TRACK_WIDTH / 2, -WHEEL_BASE / 2) // location rel to centre
+      Rotation2d.k180deg, // Offset rel to FL module
+      new Translation2d(-WHEEL_BASE / 2, -TRACK_WIDTH / 2) // location rel to centre
   );
 
   /** Swerve Kinematics */
@@ -177,13 +166,12 @@ public class DriveConstants {
       /** CAN ID for the module's Steering Motor */
       int steerCANID,
       /**
-       * Angular offset of the module around the robot's center, FL module is at 0,
-       * top down CW positive.
+       * Angular offset of the module around the robot's center, relative to FL
+       * module.
        */
       Rotation2d angularOffset,
       /**
-       * Location of module relative to robot center, top down, right and front pos.
-       * Mainly for sim purposes.
+       * Location of module relative to robot center. Mainly for sim purposes.
        */
       Translation2d location) {
   }
