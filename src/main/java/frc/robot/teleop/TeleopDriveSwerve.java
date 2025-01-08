@@ -2,6 +2,8 @@ package frc.robot.teleop;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.OI;
 import frc.robot.Subsystems;
@@ -24,7 +26,7 @@ public class TeleopDriveSwerve extends Command {
   public void execute() {
     double limiter = OI.pilot.getRightTriggerAxis();
     double booster = OI.pilot.rightBumper().getAsBoolean() ? 1 : 0;
-    boolean robotRelative = OI.pilot.back().getAsBoolean();
+    boolean fieldRelative = !OI.pilot.back().getAsBoolean();
 
     // organise field relative switch
     final var control = settings.fitSwerve(
@@ -42,8 +44,20 @@ public class TeleopDriveSwerve extends Command {
     y = yLimiter.calculate(y) * DriveConstants.MAX_SPEED;
     r = rLimiter.calculate(r) * DriveConstants.MAX_ANGULAR_SPEED;
 
+    // if we are on the red alliance and driving field-relative, we should invert
+    // driver inputs since the field's origin is taken from the blue alliance
+    if (fieldRelative) {
+      final var onRedAlliance = DriverStation.getAlliance()
+          .map(alliance -> alliance == Alliance.Red)
+          .orElse(false);
+      if (onRedAlliance) {
+        x *= -1;
+        y *= -1;
+      }
+    }
+
     final var speeds = new ChassisSpeeds(x, y, r);
-    Subsystems.drive.drive(speeds, !robotRelative);
+    Subsystems.drive.drive(speeds, fieldRelative);
   }
 
   @Override
