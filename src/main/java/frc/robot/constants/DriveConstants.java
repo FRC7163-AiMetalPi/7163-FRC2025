@@ -11,13 +11,6 @@ import edu.wpi.first.math.util.Units;
 import frc.robot.utils.RangeMath.AxesFit;
 import frc.robot.utils.RangeMath.DriveBaseFit;
 
-// Originally from https://github.com/REVrobotics/MAXSwerve-Java-Template/blob/main/src/main/java/frc/robot/Constants.java
-// You can reference the above URL if you want to check the validity of any non-robot-specific constants.
-
-// NOTE - As of 07/02/2024, all constants in this file are either from the template (URL above) or just placeholder
-// values. Therefore, most of these are completely innaccurate! Please update them to be accurate before testing.
-// - Neel
-
 public class DriveConstants {
   // NEO Motor Constants
   /** Free speed of the driving motor in rpm */
