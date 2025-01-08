@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 public class WaitProgressCommand extends WaitCommand {
   private final String key;
   private final double duration;
+
   public WaitProgressCommand(String key, double duration) {
     super(duration);
     this.key = key;
