@@ -1,5 +1,6 @@
 package frc.robot.constants;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 
 public class VisionConstants {
@@ -20,9 +21,7 @@ public class VisionConstants {
   // https://support.logi.com/hc/en-us/articles/360023465073-QuickCam-Pro-9000-Technical-Specifications
   // (not exactly sure why there are 2 links for the same camera but i've put both
   // here just in case)
-  public static final double CAM_DIAG_FOV = 75; // degrees - assume wide-angle camera
-  public static final double MAX_LED_RANGE = 5; // meters
+  public static final Rotation2d CAM_DIAG_FOV = Rotation2d.fromDegrees(75); // degrees - assume wide-angle camera
   public static final int CAM_RES_WIDTH = 640; // pixels
   public static final int CAM_RES_HEIGHT = 480; // pixels
-  public static final double MIN_TARGET_AREA = 10; // square pixels
 }

@@ -42,7 +42,10 @@ public class PhotonBridge {
       visionSim.addAprilTags(fieldLayout);
 
       camProps = new SimCameraProperties();
-      camProps.setCalibration(960, 720, Rotation2d.fromDegrees(90));
+      camProps.setCalibration(
+          VisionConstants.CAM_RES_WIDTH,
+          VisionConstants.CAM_RES_HEIGHT,
+          VisionConstants.CAM_DIAG_FOV);
       camProps.setCalibError(0.25, 0.08);
       camProps.setFPS(45);
       camProps.setAvgLatencyMs(35);
