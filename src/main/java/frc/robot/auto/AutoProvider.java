@@ -3,7 +3,6 @@ package frc.robot.auto;
 import java.util.Optional;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -28,6 +27,7 @@ public class AutoProvider {
     // AutoBuilder.pathfindToPose, since static classes are lazily constructed.
     // I now see why WPILib's docs recommend dependency-injecting subsystems rather
     // than global static access. - Neel
+    @SuppressWarnings("unused")
     final var _drive = Subsystems.drive;
 
     chooser.addOption("Pose Test",
