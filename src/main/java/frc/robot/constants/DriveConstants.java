@@ -3,6 +3,7 @@ package frc.robot.constants;
 
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -26,6 +27,10 @@ public class DriveConstants {
   public static final double MAX_ANGULAR_SPEED = 2 * Math.PI;
   /** Max angular acceleration of robot in radians per second squared */
   public static final double MAX_ANGULAR_ACCELERATION = MAX_ANGULAR_SPEED / 60;
+
+  public static final PathConstraints PATH_CONSTRAINTS = new PathConstraints(
+      MAX_SPEED, MAX_ACCELERATION,
+      MAX_ANGULAR_SPEED, MAX_ANGULAR_ACCELERATION);
 
   /** Direction slew rate in radians per second */
   public static final double DIRECTION_SLEW_RATE = 1.2;
