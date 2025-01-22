@@ -3,6 +3,7 @@ package frc.robot.auto;
 import java.util.Optional;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -25,11 +26,15 @@ public class AutoProvider {
 
     // This is here to ensure PathPlanner is configured before we attempt to call
     // AutoBuilder.pathfindToPose, since static classes are lazily constructed.
-    // I think I now see why WPILib's docs recommend dependency injection for subs.
+    // I now see why WPILib's docs recommend dependency-injecting subsystems rather
+    // than global static access. - Neel
     final var _drive = Subsystems.drive;
 
     chooser.addOption("Pose Test",
-        AutoBuilder.pathfindToPose(new Pose2d(7, 4, Rotation2d.fromDegrees(180)), DriveConstants.PATH_CONSTRAINTS));
+        AutoBuilder.pathfindToPose(
+            new Pose2d(7, 4, Rotation2d.fromDegrees(180)),
+            DriveConstants.PATH_CONSTRAINTS));
+
     SmartDashboard.putData("Auto Chooser", chooser);
   }
 
