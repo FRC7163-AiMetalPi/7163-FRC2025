@@ -115,7 +115,7 @@ public class DriveSub extends SubsystemBase {
   private void updateOdometry() {
     poseEstimator.update(getRotation2d(), getModulePositions());
 
-    photon.getEstimatedPose()
+    photon.cam.getEstimatedPose()
         .ifPresent((visionResult) -> {
           // Reject any egregiously incorrect vision pose estimates
           final var visionPose = visionResult.estimatedPose.toPose2d();
