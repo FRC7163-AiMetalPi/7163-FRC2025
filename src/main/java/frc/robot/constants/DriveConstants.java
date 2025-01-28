@@ -42,8 +42,14 @@ public class DriveConstants {
   /**
    * Gear ratio of the MAX Swerve Module driving motor (gear ratio upgrade kit
    * extra high speed 1)
+   * 
+   * Note: The gear ratio <strong>must</strong> be multiplied by 3 because
+   * the gear ratios provided by REV don't take into account the math
+   * for the bevel gears we're using. Ask Joel if this doesn't make sense.
+   * 
+   * @see https://www.revrobotics.com/rev-21-3005/ for gear ratios
    */
-  public static final double DRIVE_GEAR_RATIO = 4.50;
+  public static final double DRIVE_GEAR_RATIO = 4.50 * 3;
 
   // Chassis configuration
   /** Distance between centers of left and right wheels on robot in meters */
