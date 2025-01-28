@@ -30,7 +30,7 @@ public class TeleopDriveSwerve extends Command {
   public void execute() {
     double limiter = OI.pilot.getRightTriggerAxis();
     double booster = OI.pilot.getHID().getRightBumperButton() ? 1 : 0;
-    boolean fieldRelative = !OI.pilot.getHID().getBackButton();
+    boolean fieldRelative = !OI.pilot.getHID().getLeftBumperButton();
 
     final var control = settings.fitSwerve(
         -OI.pilot.getLeftY(),

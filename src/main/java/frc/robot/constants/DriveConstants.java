@@ -3,6 +3,7 @@ package frc.robot.constants;
 
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -15,19 +16,38 @@ public class DriveConstants {
   // NEO Motor Constants
   /** Free speed of the driving motor in rpm */
   public static final double FREE_SPEED_RPM = 6380;
+  /** Distance between centers of left and right wheels on robot in meters */
+  public static final double TRACK_WIDTH = Units.inchesToMeters(20.7);
+  /** Distance between front and back wheel on robot in meters */
+  public static final double WHEEL_BASE = Units.inchesToMeters(20.7);
+  /** Drivebase radius in m (distance from center of robot to farthest module) */
+  public static final double DRIVEBASE_RADIUS = Math.hypot(WHEEL_BASE / 2, TRACK_WIDTH / 2);
 
   // Driving Parameters - Note that these are not the maximum capable speeds of
   // the robot, rather the allowed maximum speeds
-  /** Max speed of robot in meters per second */
+  /**
+   * Max speed of robot in meters per second
+   * 
+   * Right now, this is just set to a bit below the maxswerve module's free speed.
+   * It should probably be changed.
+   */
   public static final double MAX_SPEED = 4.8; // TODO check this
   /** Max acceleration of robot in meters per second squared */
   public static final double MAX_ACCELERATION = 1; // TODO check this
   public static final double MAX_DECELERATION = 2; // TODO check this
-  /** Max angular speed of robot in radians per second */
-  public static final double MAX_ANGULAR_SPEED = 2 * Math.PI;
+  /**
+   * Max angular speed of robot in radians per second
+   * 
+   * This is derived from the MAX_SPEED using the angular velocity formula v = ωr
+   */
+  public static final double MAX_ANGULAR_SPEED = MAX_SPEED / DRIVEBASE_RADIUS;
   /** Max angular acceleration of robot in radians per second squared */
   public static final double MAX_ANGULAR_ACCELERATION = MAX_ANGULAR_SPEED / 60       *15;
   public static final double MAX_ANGULAR_DECELERATION = MAX_ANGULAR_SPEED / 60       *30;
+
+  public static final PathConstraints PATH_CONSTRAINTS = new PathConstraints(
+      MAX_SPEED, MAX_ACCELERATION,
+      MAX_ANGULAR_SPEED, MAX_ANGULAR_ACCELERATION);
 
   /** Direction slew rate in radians per second */
   public static final double DIRECTION_SLEW_RATE = 1.2;
@@ -39,14 +59,16 @@ public class DriveConstants {
   /**
    * Gear ratio of the MAX Swerve Module driving motor (gear ratio upgrade kit
    * extra high speed 1)
+   * 
+   * Note: The gear ratio <strong>must</strong> be multiplied by 3 because
+   * the gear ratios provided by REV don't take into account the math
+   * for the bevel gears we're using. Ask Joel if this doesn't make sense.
+   * 
+   * @see https://www.revrobotics.com/rev-21-3005/ for gear ratios
    */
-  public static final double DRIVE_GEAR_RATIO = 4.50;
+  public static final double DRIVE_GEAR_RATIO = 4.50 * 3;
 
   // Chassis configuration
-  /** Distance between centers of left and right wheels on robot in meters */
-  public static final double TRACK_WIDTH = Units.inchesToMeters(20.7);
-  /** Distance between front and back wheel on robot in meters */
-  public static final double WHEEL_BASE = Units.inchesToMeters(20.7);
 
   /** IMU Gyro Inversion */
   public static final boolean GYRO_REVERSED = false;
@@ -94,10 +116,6 @@ public class DriveConstants {
   public static final PIDConstants AUTO_TRANSLATION_PID = new PIDConstants(0.1, 0, 0);
   /** Auto rotation PID constants */
   public static final PIDConstants AUTO_ROTATION_PID = new PIDConstants(0.25, 0, 0);
-  /** Auto module max speed in m/s */
-  public static final double MAX_MODULE_SPEED = 4.5;
-  /** Drivebase radius in m (distance from center of robot to farthest module) */
-  public static final double DRIVEBASE_RADIUS = Math.hypot(WHEEL_BASE / 2, TRACK_WIDTH / 2);
 
   /*
    * public static DriveBaseFit PILOT_SETTINGS = DriveBaseFit(
