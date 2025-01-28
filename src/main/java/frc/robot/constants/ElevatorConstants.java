@@ -8,7 +8,7 @@ public class ElevatorConstants {
   protected ElevatorConstants() {
   }
 
-  public static final int MOTOR_ID = 1;
+  public static final int MOTOR_ID = 7;
   public static final EncoderSupplier ENCODER_ID = new EncoderSupplier(new int[] { 8, 9 }, 1);
   public static final double GROUND_TO_ELEVATOR = 0;
 
