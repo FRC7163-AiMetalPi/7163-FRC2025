@@ -34,6 +34,8 @@ public class AutoProvider {
         AutoBuilder.pathfindToPose(
             new Pose2d(7, 4, Rotation2d.fromDegrees(180)),
             DriveConstants.PATH_CONSTRAINTS));
+    chooser.addOption("Lateral Speed Analysis", new LateralSpeedAnalysis());
+    chooser.addOption("Angular Speed Analysis", new AngularSpeedAnalysis());
 
     SmartDashboard.putData("Auto Chooser", chooser);
   }
