@@ -22,10 +22,12 @@ public class DriveConstants {
   public static final double MAX_SPEED = 4.8; // TODO check this
   /** Max acceleration of robot in meters per second squared */
   public static final double MAX_ACCELERATION = 1; // TODO check this
+  public static final double MAX_DECELERATION = 2; // TODO check this
   /** Max angular speed of robot in radians per second */
   public static final double MAX_ANGULAR_SPEED = 2 * Math.PI;
   /** Max angular acceleration of robot in radians per second squared */
-  public static final double MAX_ANGULAR_ACCELERATION = MAX_ANGULAR_SPEED / 60;
+  public static final double MAX_ANGULAR_ACCELERATION = MAX_ANGULAR_SPEED / 60       *15;
+  public static final double MAX_ANGULAR_DECELERATION = MAX_ANGULAR_SPEED / 60       *30;
 
   /** Direction slew rate in radians per second */
   public static final double DIRECTION_SLEW_RATE = 1.2;

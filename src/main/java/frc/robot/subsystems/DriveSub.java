@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.ADIS16470_IMUSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Robot;
 import frc.robot.constants.DriveConstants;
 import frc.robot.utils.PhotonBridge;
 import frc.robot.utils.SwerveModule;
@@ -45,6 +46,8 @@ public class DriveSub extends SubsystemBase {
 
   // Field for robot viz
   private final Field2d field = new Field2d();
+
+  private final ChassisSpeeds simErrorOffset;
 
   // Pose estimation class for tracking robot pose
   private final SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(
@@ -67,6 +70,8 @@ public class DriveSub extends SubsystemBase {
     SmartDashboard.putData("FR Module", frontRight);
     SmartDashboard.putData("BL Module", backLeft);
     SmartDashboard.putData("BR Module", backRight);
+
+    simErrorOffset = new ChassisSpeeds(0, 0, 0.1);
   }
 
   @Override
@@ -150,6 +155,12 @@ public class DriveSub extends SubsystemBase {
     if (fieldRelative) {
       speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getRotation2d());
     }
+    if(Robot.isSimulation()){
+      double speed = Math.sqrt(Math.pow(speeds.vxMetersPerSecond,2) + Math.pow(speeds.vxMetersPerSecond,2));
+      speeds = speeds.plus(simErrorOffset.times(speed));
+    }
+
+
     final var states = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(speeds);
     setModuleStates(states);
   }
