@@ -115,17 +115,19 @@ public class DriveSub extends SubsystemBase {
   private void updateOdometry() {
     poseEstimator.update(getRotation2d(), getModulePositions());
 
-    photon.cam.getEstimatedPose()
-        .ifPresent((visionResult) -> {
-          // Reject any egregiously incorrect vision pose estimates
-          final var visionPose = visionResult.estimatedPose.toPose2d();
-          final var currentPose = getPose();
-          final var errorMeters = visionPose.getTranslation().getDistance(currentPose.getTranslation());
-          if (errorMeters > 1)
-            return;
+    for (final var cam : photon.cams) {
+      cam.getEstimatedPose()
+          .ifPresent((visionResult) -> {
+            // Reject any egregiously incorrect vision pose estimates
+            final var visionPose = visionResult.estimatedPose.toPose2d();
+            final var currentPose = getPose();
+            final var errorMeters = visionPose.getTranslation().getDistance(currentPose.getTranslation());
+            if (errorMeters > 1)
+              return;
 
-          poseEstimator.addVisionMeasurement(visionPose, visionResult.timestampSeconds);
-        });
+            poseEstimator.addVisionMeasurement(visionPose, visionResult.timestampSeconds);
+          });
+    }
 
     field.setRobotPose(getPose());
   }

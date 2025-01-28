@@ -1,5 +1,8 @@
 package frc.robot.utils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 
@@ -10,7 +13,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.constants.VisionConstants;
 
 public class PhotonBridge {
-  public final PhotonCameraPoseEstimator cam;
+  public final List<PhotonCameraPoseEstimator> cams = new ArrayList<>();
 
   // Simulation
   private VisionSystemSim visionSim;
@@ -28,16 +31,18 @@ public class PhotonBridge {
     camProps.setAvgLatencyMs(35);
     camProps.setLatencyStdDevMs(5);
 
-    cam = new PhotonCameraPoseEstimator(
+    cams.add(new PhotonCameraPoseEstimator(
         VisionConstants.PHOTON_CAMERA_NAME,
         VisionConstants.ROBOT_TO_CAMERA,
         fieldLayout,
-        camProps);
+        camProps));
 
     if (RobotBase.isSimulation()) {
       visionSim = new VisionSystemSim(VisionConstants.PHOTON_CAMERA_NAME);
       visionSim.addAprilTags(fieldLayout);
-      visionSim.addCamera(cam.camSim, cam.getRobotToCameraTransform());
+      for (final var cam : cams) {
+        visionSim.addCamera(cam.camSim, cam.getRobotToCameraTransform());
+      }
     }
   }
 
