@@ -19,6 +19,7 @@ public class PhotonCameraPoseEstimator {
   private final PhotonCamera cam;
   public final PhotonCameraSim camSim;
   private final PhotonPoseEstimator poseEstimator;
+  private int errorCounter = 0;
 
   public PhotonCameraPoseEstimator(
       String cameraName,
@@ -46,7 +47,7 @@ public class PhotonCameraPoseEstimator {
 
   public Optional<PhotonPipelineResult> getLatestResult() {
     if (!cam.isConnected()) {
-      System.err.println("PhotonBridge: Error: Camera not connected");
+      printErr("PhotonBridge: Error: Camera not connected");
       return Optional.empty();
     }
 
@@ -66,5 +67,13 @@ public class PhotonCameraPoseEstimator {
   public void reset(Pose2d pose) {
     poseEstimator.setLastPose(pose);
     poseEstimator.setReferencePose(pose);
+  }
+
+  public void printErr(String message){
+    if(errorCounter <= 0){
+      System.err.println(message);
+      errorCounter = 100;
+    }
+    errorCounter--;
   }
 }

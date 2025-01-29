@@ -85,7 +85,7 @@ public class DriveBaseFit {
     double angle = Math.atan2(y, x);
     double power = Math.hypot(x, y);
 
-    System.out.println(power);
+    //System.out.println(power);
 
     power = axesLin.fit(power, boostPercent, limitPercent);
     yaw = axesYaw.fit(yaw, boostPercent, limitPercent);
