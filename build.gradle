@@ -37,7 +37,7 @@ deploy {
                     
                     // Take a heap dump on OutOfMemoryError (usb drive must be connected to rio)
                     jvmArgs.add("-XX:+HeapDumpOnOutOfMemoryError")
-                    jvmArgs.add("-XX:HeapDumpPath=/u/frc-usercode.hprof")
+                    jvmArgs.add("-XX:HeapDumpPath=/u/")
                 }
 
                 // Static files artifact
