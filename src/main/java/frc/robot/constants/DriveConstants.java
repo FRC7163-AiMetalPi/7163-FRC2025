@@ -17,9 +17,9 @@ public class DriveConstants {
   /** Free speed of the driving motor in rpm */
   public static final double FREE_SPEED_RPM = 6380;
   /** Distance between centers of left and right wheels on robot in meters */
-  public static final double TRACK_WIDTH = Units.inchesToMeters(20.7);
+  public static final double TRACK_WIDTH = 0.52;
   /** Distance between front and back wheel on robot in meters */
-  public static final double WHEEL_BASE = Units.inchesToMeters(20.7);
+  public static final double WHEEL_BASE = 0.52;
   /** Drivebase radius in m (distance from center of robot to farthest module) */
   public static final double DRIVEBASE_RADIUS = Math.hypot(WHEEL_BASE / 2, TRACK_WIDTH / 2);
 
@@ -42,8 +42,8 @@ public class DriveConstants {
    */
   public static final double MAX_ANGULAR_SPEED = MAX_SPEED / DRIVEBASE_RADIUS;
   /** Max angular acceleration of robot in radians per second squared */
-  public static final double MAX_ANGULAR_ACCELERATION = MAX_ANGULAR_SPEED / 60       *15;
-  public static final double MAX_ANGULAR_DECELERATION = MAX_ANGULAR_SPEED / 60       *30;
+  public static final double MAX_ANGULAR_ACCELERATION = MAX_ANGULAR_SPEED / 60 * 15;
+  public static final double MAX_ANGULAR_DECELERATION = MAX_ANGULAR_SPEED / 60 * 30;
 
   public static final PathConstraints PATH_CONSTRAINTS = new PathConstraints(
       MAX_SPEED, MAX_ACCELERATION,
