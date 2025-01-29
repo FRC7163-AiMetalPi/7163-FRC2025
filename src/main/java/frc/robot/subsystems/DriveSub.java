@@ -206,8 +206,8 @@ public class DriveSub extends SubsystemBase {
     SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.MAX_SPEED);
     frontLeft.setDesiredState(desiredStates[0]);
     frontRight.setDesiredState(desiredStates[1]);
-    backLeft.setDesiredState(desiredStates[2]);
-    backRight.setDesiredState(desiredStates[3]);
+    //backLeft.setDesiredState(desiredStates[2]);
+    //backRight.setDesiredState(desiredStates[3]);
   }
 
   /** @return the modules' current {@link SwerveModuleState}s */
