@@ -280,14 +280,14 @@ public class SwerveModule implements Sendable {
       //direction
       isFlipped = true;
       return new SwerveModuleState(
-          -desiredState.speedMetersPerSecond,
+          desiredState.speedMetersPerSecond,
           desiredState.angle);
     } else {
       isFlipped = false;
       lastLimit = error > 160 ? 90 : 45; // release only when near the inverted
       //target direction
       return new SwerveModuleState(
-          desiredState.speedMetersPerSecond,
+          -desiredState.speedMetersPerSecond,
           desiredState.angle.rotateBy(Rotation2d.kPi));
     }
   }

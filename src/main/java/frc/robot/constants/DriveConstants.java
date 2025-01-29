@@ -101,13 +101,13 @@ public class DriveConstants {
   public static final double TURNING_ENCODER_POSITION_PID_MAX_INPUT = TURNING_ENCODER_POSITION_FACTOR; // radians
 
   // TODO tune PID
-  public static final double DRIVE_P = 0;//.7;
-  public static final double DRIVE_I = 0.0;// 5;
-  public static final double DRIVE_D = 0;//.05;
+  public static final double DRIVE_P = 0.7;
+  public static final double DRIVE_I = 0.05;
+  public static final double DRIVE_D = 0.05;
   public static final double DRIVING_FF = 0;
 
   public static final double TURNING_P = 0.1;
-  public static final double TURNING_I = 0;//.001;
+  public static final double TURNING_I = 0.001;
   public static final double TURNING_D = 0.02;
   public static final double TURNING_FF = 0;// .1;
 
@@ -127,7 +127,7 @@ public class DriveConstants {
   public static DriveBaseFit PILOT_SETTINGS = new DriveBaseFit(
       new AxesFit().withOutputMinMax(0, 0.7).withPow(4).withDeadBand(0.1)
           .withLimiter(0.15).withBooster(1),
-      new AxesFit().withPow(3).withDeadBand(0.1).withLimiter(0.15));
+      new AxesFit().withPow(3).withDeadBand(0.1).withLimiter(0.15).inverted());
 
   /*
    * public static DriveBaseFit PILOT_DEMO_SETTINGS = DriveBaseFit.InitSwerveBot(
@@ -138,30 +138,30 @@ public class DriveConstants {
    */
   public static DriveBaseFit PILOT_DEMO_SETTINGS = new DriveBaseFit(
       new AxesFit().withOutputMinMax(0, 0.2).withPow(2).withDeadBand(0.1).withLimiter(0.15),
-      new AxesFit().withOutputMinMax(0, 0.2).withPow(2).withDeadBand(0.1).withLimiter(0.15));
+      new AxesFit().withOutputMinMax(0, 0.2).withPow(2).withDeadBand(0.1).withLimiter(0.15).inverted());
 
   public static final SwerveModuleDetails SWERVE_MODULE_FL = new SwerveModuleDetails(
       1, // Drive motor CAN ID
       1, // Steer motor CAN ID
-      Rotation2d.kZero, // offset relative to FL
+      Rotation2d.kCW_90deg, // offset relative to FL
       new Translation2d(WHEEL_BASE / 2, TRACK_WIDTH / 2) // location rel to centre
   );
   public static final SwerveModuleDetails SWERVE_MODULE_FR = new SwerveModuleDetails(
       2, // Drive motor CAN ID
       2, // Steer motor CAN ID
-      Rotation2d.kCW_90deg, // offset relative to FL
+      Rotation2d.kZero, // offset relative to FL
       new Translation2d(WHEEL_BASE / 2, -TRACK_WIDTH / 2) // location rel to centre
   );
   public static final SwerveModuleDetails SWERVE_MODULE_BL = new SwerveModuleDetails(
       3, // Drive motor CAN ID
       3, // Steer motor CAN ID
-      Rotation2d.kCCW_90deg, // Offset rel to FL module
+      Rotation2d.k180deg, // Offset rel to FL module
       new Translation2d(-WHEEL_BASE / 2, TRACK_WIDTH / 2) // location rel to centre
   );
   public static final SwerveModuleDetails SWERVE_MODULE_BR = new SwerveModuleDetails(
       4, // Drive motor CAN ID
       4, // Steer motor CAN ID
-      Rotation2d.k180deg, // Offset rel to FL module
+      Rotation2d.kCCW_90deg, // Offset rel to FL module
       new Translation2d(-WHEEL_BASE / 2, -TRACK_WIDTH / 2) // location rel to centre
   );
 
