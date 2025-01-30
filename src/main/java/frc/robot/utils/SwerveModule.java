@@ -96,7 +96,7 @@ public class SwerveModule implements Sendable {
             DriveConstants.TURNING_I,
             DriveConstants.TURNING_D,
             DriveConstants.TURNING_FF)
-        .iZone(Math.toRadians(15))
+        .iZone(Math.toRadians(DriveConstants.TURNING_I_ZONE))
         .positionWrappingEnabled(true)
         .positionWrappingInputRange(
             DriveConstants.TURNING_ENCODER_POSITION_PID_MIN_INPUT,
@@ -162,12 +162,13 @@ public class SwerveModule implements Sendable {
   }
 
   /** @return the module's robot-relative turning angle (rad) */
-  public double getTurnAngle() { 
+  public double getTurnAngle() {
     return getTurnAngle(true);
   }
+
   /** @return the module's turning angle (rad) */
   public double getTurnAngle(boolean robotRelative) {
-    if(robotRelative){
+    if (robotRelative) {
       return turnEncoder.getPosition() - details.angularOffset().getRadians();
     }
     return turnEncoder.getPosition();
@@ -177,6 +178,7 @@ public class SwerveModule implements Sendable {
   public Rotation2d getTurnRotation2d() {
     return getTurnRotation2d(true);
   }
+
   /** @return the module's turning angle as a {@link Rotation2d} */
   public Rotation2d getTurnRotation2d(boolean robotRelative) {
     return new Rotation2d(getTurnAngle(robotRelative));
@@ -262,21 +264,22 @@ public class SwerveModule implements Sendable {
 
   private int lastLimit = 0;
   private boolean isFlipped = false;
+
   /**
    * Optimises the wheel pivot direction to reduce time spent turning
    * uses a moving threshold to reduce flip-floping when near the 90deg point
    */
-  public SwerveModuleState optimize(SwerveModuleState desiredState, Rotation2d
-    currentAngle) {
+  public SwerveModuleState optimize(SwerveModuleState desiredState, Rotation2d currentAngle) {
     var delta = desiredState.angle.minus(currentAngle);
     double error = Math.abs(delta.getDegrees());
     int limit = lastLimit;
-    System.out.println(limit +" "+ error +" "+ delta +" "+ desiredState.angle +" "+ currentAngle +" "+ isFlipped);
-    
+    System.out
+        .println(limit + " " + error + " " + delta + " " + desiredState.angle + " " + currentAngle + " " + isFlipped);
+
     // optimizes by inverting the turn if the module is more than the limit
     if (error < limit) {
       lastLimit = error < 20 ? 90 : 135; // release only when near the target
-      //direction
+      // direction
       isFlipped = true;
       return new SwerveModuleState(
           desiredState.speedMetersPerSecond,
@@ -284,13 +287,12 @@ public class SwerveModule implements Sendable {
     } else {
       isFlipped = false;
       lastLimit = error > 160 ? 90 : 45; // release only when near the inverted
-      //target direction
+      // target direction
       return new SwerveModuleState(
           -desiredState.speedMetersPerSecond,
           desiredState.angle.rotateBy(Rotation2d.kPi));
     }
   }
-  
 
   /** resets the drive encoder */
   public void resetEncoders() {

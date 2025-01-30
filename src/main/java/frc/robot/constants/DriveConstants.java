@@ -110,6 +110,7 @@ public class DriveConstants {
   public static final double TURNING_I = 0.05;
   public static final double TURNING_D = 0.15;
   public static final double TURNING_FF = 0;
+  public static final double TURNING_I_ZONE = Math.toRadians(15);
 
   // Auto Constants
   // TODO: Tune these
