@@ -8,14 +8,18 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.OI;
 import frc.robot.Subsystems;
 import frc.robot.constants.DriveConstants;
+import frc.robot.utils.SpeedRateLimiter;
 import frc.robot.utils.RangeMath.DriveBaseFit;
 
 public class TeleopDriveSwerve extends Command {
   private final DriveBaseFit settings;
 
-  private final SlewRateLimiter xLimiter = new SlewRateLimiter(DriveConstants.MAX_ACCELERATION);
-  private final SlewRateLimiter yLimiter = new SlewRateLimiter(DriveConstants.MAX_ACCELERATION);
-  private final SlewRateLimiter rLimiter = new SlewRateLimiter(DriveConstants.MAX_ANGULAR_ACCELERATION);
+  private final SlewRateLimiter xLimiter = new SpeedRateLimiter(DriveConstants.MAX_ACCELERATION,
+                                                                -DriveConstants.MAX_DECELERATION, 0);
+  private final SlewRateLimiter yLimiter = new SpeedRateLimiter(DriveConstants.MAX_ACCELERATION,
+                                                                -DriveConstants.MAX_DECELERATION, 0);
+  private final SlewRateLimiter rLimiter = new SpeedRateLimiter(DriveConstants.MAX_ANGULAR_ACCELERATION, 
+                                                                -DriveConstants.MAX_ANGULAR_DECELERATION, 0);
 
   public TeleopDriveSwerve(DriveBaseFit settings) {
     this.settings = settings;

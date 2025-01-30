@@ -96,6 +96,7 @@ public class SwerveModule implements Sendable {
             DriveConstants.TURNING_I,
             DriveConstants.TURNING_D,
             DriveConstants.TURNING_FF)
+        .iZone(Math.toRadians(DriveConstants.TURNING_I_ZONE))
         .positionWrappingEnabled(true)
         .positionWrappingInputRange(
             DriveConstants.TURNING_ENCODER_POSITION_PID_MIN_INPUT,
@@ -162,12 +163,25 @@ public class SwerveModule implements Sendable {
 
   /** @return the module's robot-relative turning angle (rad) */
   public double getTurnAngle() {
-    return turnEncoder.getPosition() - details.angularOffset().getRadians();
+    return getTurnAngle(true);
+  }
+
+  /** @return the module's turning angle (rad) */
+  public double getTurnAngle(boolean robotRelative) {
+    if (robotRelative) {
+      return turnEncoder.getPosition() - details.angularOffset().getRadians();
+    }
+    return turnEncoder.getPosition();
   }
 
   /** @return the module's robot-relative turning angle as a {@link Rotation2d} */
   public Rotation2d getTurnRotation2d() {
-    return new Rotation2d(getTurnAngle());
+    return getTurnRotation2d(true);
+  }
+
+  /** @return the module's turning angle as a {@link Rotation2d} */
+  public Rotation2d getTurnRotation2d(boolean robotRelative) {
+    return new Rotation2d(getTurnAngle(robotRelative));
   }
 
   /** @return the module's turning velocity (rad/s) */
@@ -202,8 +216,7 @@ public class SwerveModule implements Sendable {
       return;
     }
 
-    // TODO: Make a good SwerveModuleState optimizer
-    state.optimize(getTurnRotation2d());
+    state = optimize(state, getTurnRotation2d(false));
     driveMotor.setControl(
         driveController.withVelocity(state.speedMetersPerSecond / DriveConstants.WHEEL_CIRCUMFERENCE_METERS));
     turnController.setReference(state.angle.getRadians(), ControlType.kPosition);
@@ -249,34 +262,37 @@ public class SwerveModule implements Sendable {
    * }
    */
 
+  private int lastLimit = 0;
+  private boolean isFlipped = false;
+
   /**
    * Optimises the wheel pivot direction to reduce time spent turning
    * uses a moving threshold to reduce flip-floping when near the 90deg point
    */
-  /*
-   * public SwerveModuleState optimize(SwerveModuleState desiredState, Rotation2d
-   * currentAngle) {
-   * var delta = desiredState.angle.minus(currentAngle);
-   * double error = Math.abs(delta.getDegrees());
-   * int limit = lastLimit;
-   * 
-   * // optimizes by inverting the turn if the module is more than the limit
-   * if (error < limit) {
-   * lastLimit = error < 20 ? 90 : 135; // release only when near the target
-   * direction
-   * isFlipped = true;
-   * return new SwerveModuleState(
-   * -desiredState.speedMetersPerSecond,
-   * desiredState.angle.rotateBy(Rotation2d.kPi));
-   * } else {
-   * isFlipped = false;
-   * lastLimit = error > 160 ? 90 : 45; // release only when near the inverted
-   * target direction
-   * return new SwerveModuleState(desiredState.speedMetersPerSecond,
-   * desiredState.angle);
-   * }
-   * }
-   */
+  public SwerveModuleState optimize(SwerveModuleState desiredState, Rotation2d currentAngle) {
+    var delta = desiredState.angle.minus(currentAngle);
+    double error = Math.abs(delta.getDegrees());
+    int limit = lastLimit;
+    System.out
+        .println(limit + " " + error + " " + delta + " " + desiredState.angle + " " + currentAngle + " " + isFlipped);
+
+    // optimizes by inverting the turn if the module is more than the limit
+    if (error < limit) {
+      lastLimit = error < 20 ? 90 : 135; // release only when near the target
+      // direction
+      isFlipped = true;
+      return new SwerveModuleState(
+          desiredState.speedMetersPerSecond,
+          desiredState.angle);
+    } else {
+      isFlipped = false;
+      lastLimit = error > 160 ? 90 : 45; // release only when near the inverted
+      // target direction
+      return new SwerveModuleState(
+          -desiredState.speedMetersPerSecond,
+          desiredState.angle.rotateBy(Rotation2d.kPi));
+    }
+  }
 
   /** resets the drive encoder */
   public void resetEncoders() {

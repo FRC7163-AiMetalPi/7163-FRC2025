@@ -52,17 +52,11 @@ public class RobotContainer {
         .onTrue(new RepeatedFlashLEDCommand(
             (FlashSolidLEDCommand) (new FlashSolidLEDCommand(Color.kYellow, 300).withZone()), 5));
 
-    DigitalInput dio0 = new DigitalInput(0);
-    new Trigger(() -> dio0.get()).whileTrue(new SolidLEDCommand(Color.kGreen).withZone(1));
     // +----------------+
     // | PILOT CONTROLS |
     // +----------------+
 
     // --- Manual Controls ---
-
-    // Invert Drive
-    // OI.pilot.start().onTrue(new InstantCommand(() ->
-    // Variables.invertDriveDirection = !Variables.invertDriveDirection));
 
     // OI.pilot.y().onTrue(new
     // InstantCommand(()->BatteryPercentLEDCommand.runFor(50)));
@@ -73,14 +67,13 @@ public class RobotContainer {
     OI.pilot.x().onTrue(new RepeatedFlashLEDCommand(
         (FlashSolidLEDCommand) (new FlashSolidLEDCommand(Color.kBlue, 200).withZone(new int[] { 0 })),
         5));
-    
+
     OI.pilot.rightTrigger().onTrue(new InstantCommand(() -> Subsystems.coralHolder.forward()));
     OI.pilot.leftTrigger().whileTrue(Subsystems.coralHolder.runUntilEndCommand());
-    
-    // OI.pilot.start()
-    // .onTrue(
-    // new InstantCommand(() -> Subsystems.swerveDrive.zeroHeading(),
-    // Subsystems.swerveDrive));
+
+    OI.pilot.start()
+        .onTrue(
+            new InstantCommand(Subsystems.drive::zeroHeading, Subsystems.drive));
 
     // Drive bindings handled in teleop command
   }
