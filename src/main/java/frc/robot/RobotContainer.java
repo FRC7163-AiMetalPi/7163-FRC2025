@@ -75,7 +75,7 @@ public class RobotContainer {
         5));
     
     OI.pilot.rightTrigger().onTrue(new InstantCommand(() -> Subsystems.coralHolder.forward()));
-    OI.pilot.leftTrigger().onTrue(new InstantCommand(() -> Subsystems.coralHolder.reverse()));
+    OI.pilot.leftTrigger().whileTrue(Subsystems.coralHolder.runUntilEndCommand());
     
     // OI.pilot.start()
     // .onTrue(

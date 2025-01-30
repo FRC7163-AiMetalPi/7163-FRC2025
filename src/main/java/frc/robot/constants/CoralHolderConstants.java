@@ -9,4 +9,5 @@ public class CoralHolderConstants {
     //TODO: build the robot
     public static final int LEFT_CAN_ID = -1;
     public static final int RIGHT_CAN_ID = -1;
+    public static final int LIMIT_SW_ID = -1;
 }
