@@ -106,12 +106,13 @@ public class DriveConstants {
   public static final double DRIVE_D = 0.05;
   public static final double DRIVING_FF = 0;
 
-  public static final double TURNING_P = 0.1;
-  public static final double TURNING_I = 0.001;
-  public static final double TURNING_D = 0.02;
-  public static final double TURNING_FF = 0;// .1;
+  public static final double TURNING_P = 1.3;
+  public static final double TURNING_I = 0.05;
+  public static final double TURNING_D = 0.15;
+  public static final double TURNING_FF = 0;
 
   // Auto Constants
+  // TODO: Tune these
   /** Auto translation PID constants */
   public static final PIDConstants AUTO_TRANSLATION_PID = new PIDConstants(0.1, 0, 0);
   /** Auto rotation PID constants */
