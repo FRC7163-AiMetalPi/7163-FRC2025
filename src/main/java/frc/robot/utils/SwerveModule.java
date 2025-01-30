@@ -96,6 +96,7 @@ public class SwerveModule implements Sendable {
             DriveConstants.TURNING_I,
             DriveConstants.TURNING_D,
             DriveConstants.TURNING_FF)
+        .iZone(Math.toRadians(15))
         .positionWrappingEnabled(true)
         .positionWrappingInputRange(
             DriveConstants.TURNING_ENCODER_POSITION_PID_MIN_INPUT,
@@ -213,8 +214,6 @@ public class SwerveModule implements Sendable {
       return;
     }
 
-    // TODO: Make a good SwerveModuleState optimizer
-    // stop changing optimiser
     state = optimize(state, getTurnRotation2d(false));
     driveMotor.setControl(
         driveController.withVelocity(state.speedMetersPerSecond / DriveConstants.WHEEL_CIRCUMFERENCE_METERS));
