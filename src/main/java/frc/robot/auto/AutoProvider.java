@@ -3,6 +3,7 @@ package frc.robot.auto;
 import java.util.Optional;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -30,9 +31,17 @@ public class AutoProvider {
     @SuppressWarnings("unused")
     final var _drive = Subsystems.drive;
 
-    chooser.addOption("Pose Test",
+    try {
+      final var path = PathPlannerPath.fromPathFile("TestPath");
+      chooser.addOption("Test Path", AutoBuilder.followPath(path));
+    } catch (Exception e) {
+      System.err.println("Big oopsies when loading PathPlanner Path");
+      e.printStackTrace();
+    }
+
+    chooser.addOption("Pathfind to Pose Test",
         AutoBuilder.pathfindToPose(
-            new Pose2d(7, 4, Rotation2d.fromDegrees(180)),
+            new Pose2d(1, 1, Rotation2d.k180deg),
             DriveConstants.PATH_CONSTRAINTS));
     chooser.addOption("Lateral Speed Analysis", new LateralSpeedAnalysis());
     chooser.addOption("Angular Speed Analysis", new AngularSpeedAnalysis());
