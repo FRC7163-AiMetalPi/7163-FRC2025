@@ -25,7 +25,7 @@ public class AutoProvider {
     chooser = new SendableChooser<>(); // pub for shuffle board
 
     // This is here to ensure PathPlanner is configured before we attempt to call
-    // AutoBuilder.pathfindToPose, since static classes are lazily constructed.
+    // anything AutoBuilder-related, since static classes are lazily constructed.
     // I now see why WPILib's docs recommend dependency-injecting subsystems rather
     // than global static access. - Neel
     @SuppressWarnings("unused")
