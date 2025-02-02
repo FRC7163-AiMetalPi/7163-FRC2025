@@ -7,7 +7,7 @@ public class CoralHolderConstants {
     public static final boolean INVERT_MOTORS = false;
 
     //TODO: build the robot
-    public static final int LEFT_CAN_ID = -1;
-    public static final int RIGHT_CAN_ID = -1;
-    public static final int LIMIT_SW_ID = -1;
+    public static final int LEFT_CAN_ID = 20;
+    public static final int RIGHT_CAN_ID = 21;
+    public static final int LIMIT_SW_ID = 22;
 }
