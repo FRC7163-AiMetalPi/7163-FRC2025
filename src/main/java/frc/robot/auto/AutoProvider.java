@@ -28,8 +28,8 @@ public class AutoProvider {
     // anything AutoBuilder-related, since static classes are lazily constructed.
     // I now see why WPILib's docs recommend dependency-injecting subsystems rather
     // than global static access. - Neel
-    @SuppressWarnings("unused")
-    final var _drive = Subsystems.drive;
+    //@SuppressWarnings("unused")
+    //final var _drive = Subsystems.drive;
 
     try {
       final var path = PathPlannerPath.fromPathFile("TestPath");
@@ -43,8 +43,6 @@ public class AutoProvider {
         AutoBuilder.pathfindToPose(
             new Pose2d(1, 1, Rotation2d.k180deg),
             DriveConstants.PATH_CONSTRAINTS));
-    chooser.addOption("Lateral Speed Analysis", new LateralSpeedAnalysis());
-    chooser.addOption("Angular Speed Analysis", new AngularSpeedAnalysis());
 
     SmartDashboard.putData("Auto Chooser", chooser);
   }

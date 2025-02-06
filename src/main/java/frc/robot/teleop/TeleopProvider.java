@@ -16,21 +16,18 @@ public class TeleopProvider {
   private static Optional<TeleopProvider> inst = Optional.empty();
 
   private final Command disableCommand = new InstantCommand();
-  private final Command teleopSwerve = new TeleopDriveSwerve(DriveConstants.PILOT_SETTINGS);
-  private final Command teleopDemoSwerve = new TeleopDriveSwerve(DriveConstants.PILOT_DEMO_SETTINGS);
 
   private final SendableChooser<Command> chooser = new SendableChooser<>(); // pub for shuffle board
 
   private TeleopProvider() {
     // disabled
-    disableCommand.addRequirements(Subsystems.drive);
+    //disableCommand.addRequirements(Subsystems.drive);
     chooser.setDefaultOption("Disable Teleop", disableCommand);
 
-    chooser.addOption("Swerve Teleop", teleopSwerve);
-    chooser.addOption("Swerve Demo Teleop", teleopDemoSwerve);
+    //chooser.addOption("Swerve Teleop", teleopSwerve);
 
-    chooser.onChange(Subsystems.drive::setDefaultCommand);
-    Subsystems.drive.setDefaultCommand(chooser.getSelected()); // set default on startup
+    //chooser.onChange(Subsystems.drive::setDefaultCommand);
+    //Subsystems.drive.setDefaultCommand(chooser.getSelected()); // set default on startup
 
     SmartDashboard.putData("Teleop Chooser", chooser);
   }

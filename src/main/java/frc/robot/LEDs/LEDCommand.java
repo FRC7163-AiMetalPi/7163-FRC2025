@@ -10,7 +10,7 @@ public class LEDCommand extends Command {
   protected List<LEDZone> zones;
 
   public LEDCommand withZone() {
-    return withZone(Subsystems.ledZones);
+    return null;//withZone(Subsystems.ledZones);
   }
 
   public LEDCommand withZone(int zone) {
@@ -18,6 +18,7 @@ public class LEDCommand extends Command {
   }
 
   public LEDCommand withZone(int[] zonesArr) {
+    /*
     this.zones = new ArrayList<LEDZone>();
     for (LEDZone zone : Subsystems.ledZones) {
       for (int i = 0; i < zonesArr.length; i++) {
@@ -26,7 +27,7 @@ public class LEDCommand extends Command {
         }
       }
     }
-    this.zones.forEach((zone) -> addRequirements(zone));
+    this.zones.forEach((zone) -> addRequirements(zone));*/
     return this;
   }
 

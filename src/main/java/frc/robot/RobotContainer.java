@@ -58,23 +58,6 @@ public class RobotContainer {
 
     // --- Manual Controls ---
 
-    // OI.pilot.y().onTrue(new
-    // InstantCommand(()->BatteryPercentLEDCommand.runFor(50)));
-    OI.pilot.a().onTrue(new FlashSolidLEDCommand(Color.kCrimson, 1000).withZone());
-    OI.pilot.b().onTrue(new RepeatedFlashLEDCommand(
-        (FlashSolidLEDCommand) (new FlashSolidLEDCommand(Color.kYellow, 200).withZone(new int[] { 1, 2 })),
-        5).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
-    OI.pilot.x().onTrue(new RepeatedFlashLEDCommand(
-        (FlashSolidLEDCommand) (new FlashSolidLEDCommand(Color.kBlue, 200).withZone(new int[] { 0 })),
-        5));
-
-    OI.pilot.rightTrigger().onTrue(new InstantCommand(() -> Subsystems.coralHolder.forward()));
-    OI.pilot.leftTrigger().whileTrue(Subsystems.coralHolder.runUntilEndCommand());
-
-    OI.pilot.start()
-        .onTrue(
-            new InstantCommand(Subsystems.drive::zeroHeading, Subsystems.drive));
-
     // Drive bindings handled in teleop command
   }
 
