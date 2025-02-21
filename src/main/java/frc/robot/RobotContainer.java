@@ -51,7 +51,7 @@ public class RobotContainer {
     new Trigger(() -> DriverStation.isTeleop() && DriverStation.getMatchTime() <= 30)
         .onTrue(new RepeatedFlashLEDCommand(
             (FlashSolidLEDCommand) (new FlashSolidLEDCommand(Color.kYellow, 300).withZone()), 5));
-
+    OI.pilot.a().onTrue(new InstantCommand(() -> Subsystems.coral.runOutTake())).onFalse(new InstantCommand(() -> Subsystems.coral.stopOutTake()));
     // +----------------+
     // | PILOT CONTROLS |
     // +----------------+
