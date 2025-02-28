@@ -65,12 +65,12 @@ public class Robot extends TimedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
-    new RainbowLEDCommand().withZone().schedule();
+    //new RainbowLEDCommand().withZone().schedule();
     System.out
         .println("Disabled ----------------------------------------------------------------------------------------");
-    new TeamColorLEDCommand().withZone(new int[] { 1, 2 }).schedule();
-    batteryLEDDisplay = new BatteryPercentLEDCommand();
-    batteryLEDDisplay.schedule();
+    //new TeamColorLEDCommand().withZone(new int[] { 1, 2 }).schedule();
+    //batteryLEDDisplay = new BatteryPercentLEDCommand();
+    //batteryLEDDisplay.schedule();
   }
 
   @Override
@@ -83,8 +83,8 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    batteryLEDDisplay.finish();
-    new ClearLEDCommand().withZone().schedule();
+    //batteryLEDDisplay.finish();
+    //new ClearLEDCommand().withZone().schedule();
     autoCommand = robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
@@ -103,8 +103,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    batteryLEDDisplay.finish();
-    new ClearLEDCommand().withZone().schedule();
+    //batteryLEDDisplay.finish();
+    //new ClearLEDCommand().withZone().schedule();
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
@@ -124,7 +124,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
-    batteryLEDDisplay.finish();
+    //batteryLEDDisplay.finish();
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
     System.out

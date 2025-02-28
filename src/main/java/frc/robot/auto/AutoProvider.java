@@ -39,10 +39,10 @@ public class AutoProvider {
       e.printStackTrace();
     }
 
-    chooser.addOption("Pathfind to Pose Test",
+    /*chooser.addOption("Pathfind to Pose Test",
         AutoBuilder.pathfindToPose(
             new Pose2d(1, 1, Rotation2d.k180deg),
-            DriveConstants.PATH_CONSTRAINTS));
+            DriveConstants.PATH_CONSTRAINTS));*/
 
     SmartDashboard.putData("Auto Chooser", chooser);
   }

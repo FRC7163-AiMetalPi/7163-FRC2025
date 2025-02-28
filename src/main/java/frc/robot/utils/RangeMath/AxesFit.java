@@ -204,6 +204,7 @@ public class AxesFit{
 
   /** reranges the input to the output range */
   private double setOutRange(double input, double absMin, double absMax){
+    if(input <= deadband){return 0;}
     //As before this function reranges the input into the output.
     //the modified version though changes the output range instead of the input
     //So the same 0->1 input becomes any->any

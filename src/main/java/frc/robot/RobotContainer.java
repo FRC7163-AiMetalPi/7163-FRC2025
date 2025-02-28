@@ -17,6 +17,7 @@ import frc.robot.LEDs.FlashSolidLEDCommand;
 import frc.robot.LEDs.RepeatedFlashLEDCommand;
 import frc.robot.LEDs.SolidLEDCommand;
 import frc.robot.auto.AutoProvider;
+import frc.robot.commands.OuttakeCommand;
 import frc.robot.teleop.TeleopProvider;
 
 /**
@@ -48,10 +49,8 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // Robot Automations
     // flash leds yellow during endgame
-    new Trigger(() -> DriverStation.isTeleop() && DriverStation.getMatchTime() <= 30)
-        .onTrue(new RepeatedFlashLEDCommand(
-            (FlashSolidLEDCommand) (new FlashSolidLEDCommand(Color.kYellow, 300).withZone()), 5));
-    OI.pilot.a().onTrue(new InstantCommand(() -> Subsystems.coral.runOutTake())).onFalse(new InstantCommand(() -> Subsystems.coral.stopOutTake()));
+
+    OI.pilot.a().onTrue (new OuttakeCommand());
     // +----------------+
     // | PILOT CONTROLS |
     // +----------------+

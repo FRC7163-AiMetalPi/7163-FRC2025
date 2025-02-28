@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.motorsupplier.TalonPwmMotorSupplier;
 
 public class DriveSub extends SubsystemBase{
-  private Talon leftMotor = new TalonPwmMotorSupplier(0).get();
+  private Talon leftMotor = new TalonPwmMotorSupplier(0).withInvert().get();
   private Talon rightMotor = new TalonPwmMotorSupplier(1).get();
   private DifferentialDrive diffDrive = new DifferentialDrive(leftMotor, rightMotor);
 
