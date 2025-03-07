@@ -21,7 +21,7 @@ public class AutoProvider {
 
   private final SendableChooser<Command> chooser;
 
-  private final Command mobility = new mobiltyAuto();
+  private final Command mobility = new mobilityAuto();
 
   private AutoProvider() {
     chooser = new SendableChooser<>(); // pub for shuffle board
