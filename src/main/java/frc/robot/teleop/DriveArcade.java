@@ -19,7 +19,7 @@ public class DriveArcade extends Command{
 
   @Override
   public void execute() {
-    double limiter = OI.pilot.getRightTriggerAxis();
+    double limiter = OI.pilot.getLeftTriggerAxis();
     double booster = OI.pilot.getHID().getRightBumperButton() ? 1 : 0;
     double speed = OI.pilot.getLeftY();
     double steer = -OI.pilot.getRightX();

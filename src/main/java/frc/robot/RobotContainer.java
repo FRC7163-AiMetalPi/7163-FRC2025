@@ -50,7 +50,7 @@ public class RobotContainer {
     // Robot Automations
     // flash leds yellow during endgame
 
-    OI.pilot.a().onTrue (new OuttakeCommand());
+    OI.copilot.a().onTrue (new OuttakeCommand());
     // +----------------+
     // | PILOT CONTROLS |
     // +----------------+

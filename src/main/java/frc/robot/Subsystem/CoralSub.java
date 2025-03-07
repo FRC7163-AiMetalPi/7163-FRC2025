@@ -2,10 +2,8 @@ package frc.robot.Subsystem;
 
 import com.revrobotics.spark.SparkMax;
 
-import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.motorsupplier.SparkMotorSupplier;
-import frc.robot.utils.motorsupplier.TalonPwmMotorSupplier;
 
 public class CoralSub extends SubsystemBase {
   private SparkMax motor = new SparkMotorSupplier(1).get();
