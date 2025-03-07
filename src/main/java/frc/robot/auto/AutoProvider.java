@@ -21,6 +21,8 @@ public class AutoProvider {
 
   private final SendableChooser<Command> chooser;
 
+  private final Command mobility = new mobiltyAuto();
+
   private AutoProvider() {
     chooser = new SendableChooser<>(); // pub for shuffle board
 
@@ -31,13 +33,7 @@ public class AutoProvider {
     //@SuppressWarnings("unused")
     //final var _drive = Subsystems.drive;
 
-    try {
-      final var path = PathPlannerPath.fromPathFile("TestPath");
-      chooser.addOption("Test Path", AutoBuilder.followPath(path));
-    } catch (Exception e) {
-      System.err.println("Big oopsies when loading PathPlanner Path");
-      e.printStackTrace();
-    }
+    chooser.addOption("mobility", mobility);
 
     /*chooser.addOption("Pathfind to Pose Test",
         AutoBuilder.pathfindToPose(
